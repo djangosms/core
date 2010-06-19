@@ -1,0 +1,18 @@
+{% extends "base_template.html" %}
+{% block content %}
+<div>
+  <form id="login-form" method="post">
+    {% csrf_token %}
+
+    <h3>Log in</h2>
+    <p class="form-help">Please enter your credentials to continue.</p>
+
+    <ul>
+      {{ form.as_ul }}
+    </ul>
+
+    <input type="submit" value="Login" />
+    <input type="hidden" name="next" value="{{ next }}" />
+  </form>
+</div>
+{% endblock %}

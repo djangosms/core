@@ -1,0 +1,15 @@
+- model: core.route
+  pk: register
+  fields:
+    name: Register
+
+- model: stats.reportkind
+  pk: registration
+  fields:
+    name: Registration
+
+- model: stats.observationkind
+  pk: new_reporter
+  fields:
+    name: New registration
+    group: registration

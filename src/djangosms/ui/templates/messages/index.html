@@ -1,0 +1,92 @@
+{% extends "base_template.html" %}
+
+{% block title %}Message Log{% endblock %}
+
+{% block page_stylesheets %}
+<link type="text/css" rel="stylesheet"
+      href="{% url djangosms.ui.base.views.static %}/stylesheets/messages.css" />
+{% endblock %}
+
+{% block content %}
+<h1>
+  <a href="{% url djangosms.ui.messages.views.index %}">Messages</a>{% if search_string %}
+  / <a href="">Search for
+      <span class="highlight">{{ search_string }}</span></a>{% endif %}
+</h1>
+
+<p class="help">
+  Displays recent messages and lets you send a message to the system.
+</p>
+
+<div class="span-12">
+  <form class="inline" method="get" id="search">
+    <p>
+      <label for="q">Query:</label>
+      <input name="q" type="text" value="{{ search_string }}" />
+      <input type="submit" value="Search" />
+    </p>
+  </form>
+  <form class="inline" method="post">
+    {% csrf_token %}
+    {{ send_form.as_p }}
+    <p>
+      <br />
+      <input type="submit" name="send" value="Send" />
+      <input type="submit" name="send_as_guest" value="Send as guest" />
+    </p>
+  </form>
+</div>
+
+<table id="message-log" class="sortable">
+  <thead>
+	{% for column, display in columns %}
+	{% ifequal column sort_column %}
+	<th class="sorted {% if sort_descending %}descending{% else %}ascending{% endif %}">
+	  <a href="?q={{ search_string }}&sort_descending={% if sort_descending %}false{% else %}true{% endif %}&sort_column={{ column }}" title="Sort by {{ display }}{% if sort_descending %} (asc){% endif %}">
+		{{ display }}
+	  </a>
+	</th>
+	{% else %}
+	<th>
+      <a href="?q={{ search_string }}&sort_column={{ column }}"
+         title="Sort by {{ display }}">{{ display }}</a></th>
+	{% endifequal %}
+	{% endfor%}
+  </thead>
+  
+  <tbody>
+	{% for message in messages.object_list %}
+	<tr>
+	  <td>{{ message.time|date:"d-M-Y H:i:s" }}</td>
+	  <td>
+        {% if message.connection.reporter %}
+        {{ message.connection.reporter|title }}
+        {% endif %}
+        <pre>{{ message.connection }}</pre>
+      </td>
+	  <td class="message-text">
+        {% if message.requests.count %}
+        <ul>
+          {% for request in message.requests.all %}
+          <li class="{% if request.erroneous %} erroneous{% endif %}">
+            <tt class="message-text">{{ request.text }}</tt>
+            <span class="request-kind form-{{ request.route }}">({{ request.route }})</span>
+            <ul>
+              {% for response in request.responses.all %}
+              <li class="response {% if response.is_reply %}reply{% endif %}">
+                {{ response.text }}
+              </li>
+              {% endfor %}
+            </ul>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <tt class="message-text">{{ message.text }}</tt>
+        {% endif %}
+      </td>
+	</tr>
+	{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

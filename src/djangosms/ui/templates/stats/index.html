@@ -1,0 +1,124 @@
+{% extends "base_template.html" %}
+
+{% block title %}Message Log{% endblock %}
+
+{% block page_stylesheets %}
+<link type="text/css" rel="stylesheet"
+      href="{% url djangosms.ui.base.views.static %}/stylesheets/stats.css" />
+{% endblock %}
+
+{% block content %}
+<h1>
+  <a href="{% url djangosms.ui.stats.views.reports %}">Stats</a>
+  {% if report %}
+  / <a href="">
+      <span class="highlight">{{ report.name }}</span></a>
+  {% endif %}
+</h1>
+
+<p class="help">
+  Displays statistical indicators by report and group.
+</p>
+
+<div class="span-12">
+  <form style="float: right" class="inline" method="get">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <p>
+      <br />
+      <input type="submit" value="Update" />
+    </p>
+  </form>
+</div>
+
+You are here:
+<a href="?">All</a>
+{% for ancestor in group.get_ancestors %}
+ &rarr; <a href="?q={{ search_string }}&group={{ ancestor.pk }}&report={{ report.slug }}">{{ ancestor.name }}</a>
+{% endfor %}
+{% if group.pk %}
+&rarr;
+<a href="?q={{ search_string }}&group={{ group.pk }}&report={{ report.slug }}">{{ group.name }}</a>
+{% endif %}
+
+<table id="stats" class="sortable">
+  <thead>
+    <tr class="reports">
+      <th>Groups</th>
+      {% for report_kind, kinds, prioritized in columns %}
+      <th colspan="{{ kinds|length }}">
+        <a href="?q={{ search_string }}&group={{ group.pk }}&report={{ report_kind.slug }}">
+          {{ report_kind.name }}
+          {% if prioritized %}
+          <small>[ &hellip; ]</small>
+          {% endif %}
+        </a>
+      </th>
+      {% endfor %}
+    </tr>
+    <tr class="observations">
+      {% if not sort_column %}
+      <th class="sorted {% if sort_descending %}descending{% else %}ascending{% endif %}">
+        <a href="?q={{ search_string }}&report={{ report.slug }}&group={{ group.pk }}&sort_descending={% if sort_descending %}false{% else %}true{% endif %}&sort_column={{ column }}" title="Sort by {{ display }}{% if sort_descending %} (asc){% endif %}">
+		  {{ group.name }}
+	    </a>
+      </th>
+      {% else %}
+      <th><a href="?group={{ group.pk }}&report={{ report.slug }}&sort_column="
+             title="Sort by group">{{ group.name }}</a></th>
+      {% endif %}
+
+      {% for report_kind, kinds, prioritized in columns %}
+      {% for kind in kinds %}
+
+      {% ifequal kind.slug sort_column %}
+      <th class="{{ kind.aggregator }}-aggregation sorted {% if sort_descending %}descending{% else %}ascending{% endif %}">
+        <a href="?q={{ search_string }}&report={{ report.slug }}&group={{ group.pk }}&sort_descending={% if sort_descending %}false{% else %}true{% endif %}&sort_column={{ kind.slug }}" title="Sort by {{ kind.name }}{% if sort_descending %} (asc){% endif %}">
+          {% if kind.abbr %}
+          {{ kind.abbr }}
+          {% else %}
+          {{ kind.name }}
+          {% endif %}
+        </a>
+      </th>
+      {% else %}
+      <th class="{{ kind.aggregator }}-aggregation">
+        <a href="?sort_column={{ kind.slug }}&report={{ report.slug }}&group={{ group.pk }}" 
+           title="Sort by {{ kind.name }}">
+          {% if kind.abbr %}
+          {{ kind.abbr }}
+          {% else %}
+          {{ kind.name }}
+          {% endif %}
+          </a>
+      </th>
+      {% endifequal %}
+      {% endfor %}
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for group, observations in observations_by_group %}
+    <tr>
+      <td>
+        {% if group.pk %}
+        <a href="?group={{ group.pk }}&report={{ report.slug }}"> {{ group.name }}</a>
+        {% else %}
+        {{ group.name }}
+        {% endif %}
+      </td>
+      {% for aggregate in observations %}
+      <td>
+        {% if aggregate %}
+        {{ aggregate }}
+        {% else %}
+        -
+        {% endif %}
+      </td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

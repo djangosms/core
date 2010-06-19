@@ -1,0 +1,15 @@
+table#stats {
+  width: 100%;
+  margin-bottom: 1em;
+}
+
+table#stats tr.reports th {
+  color: #444;
+  font-weight: bold;
+  line-height: 1.5em;
+}
+
+table#stats tr.observations th {
+  font-weight: bold;
+  line-height: 1.5em;
+}

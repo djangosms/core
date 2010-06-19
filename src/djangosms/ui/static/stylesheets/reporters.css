@@ -1,0 +1,31 @@
+table#reporters {
+  width: 100%;
+}
+
+a.reporter, a.connection, a.location, span.djangosms {
+  background: no-repeat 0 50%;
+  padding-left: 18px;
+  color: #000;
+}
+
+a.reporter   { background-image: url("../icons/silk/user--dull.png");  }
+a.connection { background-image: url("../icons/silk/phone--dull.png"); }
+a.location   { background-image: url("../icons/silk/house--dull.png"); }
+
+/* on hover, revert to the usual link
+   * color to clarify that it's a link */
+a.reporter:hover, a.connection:hover, a.location:hover {
+  background-color: none;
+  color: #33a7d2;
+}
+
+a.reporter:hover   { background-image: url("../icons/silk/user.png");  }
+a.connection:hover { background-image: url("../icons/silk/phone.png"); }
+a.location:hover   { background-image: url("../icons/silk/house.png"); }
+
+span.djangosms {
+  background-image: url("../icons/silk/building.png");
+  color: #aaa;
+}
+
+
