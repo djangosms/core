@@ -77,7 +77,7 @@ of applications that you can add to your ``INSTALLED_APPS``::
     # you'll usually want to add these as well
     'treebeard',
     'djangosms.stats',
-    'djangosms.reporters',
+    'djangosms.reporter',
     'djangosms.ui',
   )
 

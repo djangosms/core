@@ -36,7 +36,7 @@ INSTALLED_APPS = (
     'django_nose',
     'djangosms.core',
     'djangosms.stats',
-    'djangosms.reporters',
+    'djangosms.reporter',
     'djangosms.ui',
     'djangosms.apps.common',
     'djangosms.apps.registration',
