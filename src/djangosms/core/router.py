@@ -118,7 +118,13 @@ def route(message, table=None):
                 request.erroneous = True
                 request.save()
                 response = error.text
+            except StopError, error:
+                # this does not mean the message was erroneous; we
+                # just extract the (optional) response
+                response = error.text
             except Exception, error:
+                # catch and re-raise to allow the ``post_handle``
+                # signal to receive the exception instance
                 raise
             if response is not None:
                 text = unicode(response)
@@ -128,12 +134,22 @@ def route(message, table=None):
         finally:
             post_handle.send(sender=request, error=error)
 
-class FormatError(Exception):
-    """Raised from within a route handler to indicate a formatting
-    error. The provided ``text`` will be used as the message reply.
+class StopError(Exception):
+    """Raised from within a handler to indicate that no further
+    processing should happen. The provided ``text`` will be used as
+    the message reply (optional).
     """
 
-    def __init__(self, text):
+    def __init__(self, text=None):
+        self.text = text
+
+class FormatError(Exception):
+    """Raised from within a handler to indicate a formatting
+    error. The provided ``text`` will be used as the message reply
+    (optional).
+    """
+
+    def __init__(self, text=None):
         self.text = text
 
 class Form(object):

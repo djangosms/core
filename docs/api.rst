@@ -95,11 +95,7 @@ Router
 ~~~~~~
 
 .. automodule:: djangosms.core.router
-   :members: route, split
-
-   .. autoclass:: Form
-
-   .. autoclass:: FormatError
+   :members: route, split, Form, FormatError, StopError
 
 Signals
 -------
