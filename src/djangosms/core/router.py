@@ -129,8 +129,8 @@ def route(message, table=None):
             post_handle.send(sender=request, error=error)
 
 class FormatError(Exception):
-    """Raised inside a parser to indicate a formatting error. The
-    provided ``text`` will be used as the message reply.
+    """Raised from within a route handler to indicate a formatting
+    error. The provided ``text`` will be used as the message reply.
     """
 
     def __init__(self, text):
