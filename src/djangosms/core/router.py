@@ -59,11 +59,15 @@ def split(remaining, table=None):
 
     table = tuple(table)
     routes = compile_routes(table)
+    excluded = set()
 
     while True:
         text = remaining.strip()
 
         for regex, handler in routes:
+            if handler in excluded:
+                continue
+
             match = regex.search(text)
 
             if match is None:
@@ -71,6 +75,14 @@ def split(remaining, table=None):
 
             yield match, handler
             remaining = text[match.end():]
+
+            # if the match is trivial, we exclude this handler from
+            # further processing (prevents infinite recursion and
+            # allows trivial matches that use e.g. positive/negative
+            # look-ahead to invoke a filter, transform or similar)
+            if remaining == text:
+                excluded.add(handler)
+
             break
         else:
             break
@@ -109,6 +121,8 @@ def route(message, table=None):
             if response is not None:
                 text = unicode(response)
                 request.respond(message.connection, text)
+            if error is not None:
+                break
         finally:
             post_handle.send(sender=request, error=error)
 
