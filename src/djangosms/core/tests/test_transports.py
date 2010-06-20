@@ -102,8 +102,7 @@ class HttpTest(TransactionTestCase):
         from djangosms.core.transports import HTTP
         if fetch is None:
             def fetch(*args, **kwargs):
-                from django.http import HttpResponse as Response
-                return Response(u"")
+                return True
 
         kwargs.setdefault('send_url', '')
 
@@ -235,9 +234,7 @@ class HttpTest(TransactionTestCase):
         query = {}
         def fetch(request=None, **kwargs):
             query.update(cgi.parse_qsl(request.get_full_url()))
-            class mock_response:
-                status_code = 202
-            return mock_response()
+            return True
 
         http = self._make_http(fetch=fetch, dlr_url='http://localhost')
         response = self.view(request)

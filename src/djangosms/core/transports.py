@@ -446,7 +446,8 @@ class HTTP(Message):
         server (replace with a mock implementation).
         """
 
-        return urlopen(request, **kwargs)
+        response = urlopen(request, **kwargs)
+        return response.getcode() // 100 == 2
 
     def handle(self, request):
         """
@@ -523,8 +524,6 @@ class HTTP(Message):
             url+'&'+urlencode(query)
             )
 
-        response = self.fetch(request, timeout=self.timeout)
-        if response.status_code // 100 == 2:
+        if self.fetch(request, timeout=self.timeout):
             message.time = datetime.now()
             message.save()
-
