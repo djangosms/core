@@ -3,15 +3,16 @@ from picoparse import remaining
 from djangosms.core import pico
 from djangosms.core.router import Form
 from djangosms.core.router import FormatError
+from djangosms.reporter.models import Reporter
 
 from .models import Query
 
 class MustRegister(Form):
-    """Raises an error if user did not register."""
+    """Raises an error if user is not a reporter."""
 
     def parse(self):
-        if self.user is None:
-            raise FormatError(u"Must be a registered user.")
+        if self.user is None or Reporter.objects.count(pk=self.user.pk) == 0:
+            raise FormatError(u"Must be a reporter.")
 
 class NotUnderstood(Form):
     """Raises an error that the message was not understood."""
