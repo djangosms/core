@@ -8,9 +8,6 @@ from .models import Query
 
 class NotUnderstood(Form):
     def parse(self, text=None):
-        """
-        >>> what?
-        """
         raise FormatError(
             "We did not understand your message: %s." % (
                 (text or "").strip() or "(empty)"))
