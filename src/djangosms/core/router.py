@@ -128,10 +128,7 @@ class Form(object):
 
     def __call__(self):
         result = self.parse(**self.matchdict)
-        try:
-            return self.handle(**result)
-        except:
-            import pdb; pdb.set_trace()
+        return self.handle(**result)
 
     @property
     def user(self):
