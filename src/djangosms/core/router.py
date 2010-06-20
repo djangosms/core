@@ -100,14 +100,15 @@ def route(message, table=None):
                 response = handler(request, **match.groupdict())
                 if not isinstance(response, basestring) and callable(response):
                     response = response()
-                response = unicode(response)
             except FormatError, error:
                 request.erroneous = True
                 request.save()
                 response = error.text
             except Exception, error:
                 raise
-            request.respond(message.connection, response)
+            if response is not None:
+                text = unicode(response)
+                request.respond(message.connection, text)
         finally:
             post_handle.send(sender=request, error=error)
 
