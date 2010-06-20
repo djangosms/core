@@ -7,3 +7,5 @@ use in your projects:
 .. include:: ../src/djangosms/apps/common/README.rst
 
 .. include:: ../src/djangosms/apps/registration/README.rst
+
+.. include:: ../src/djangosms/apps/sandbox/README.rst
