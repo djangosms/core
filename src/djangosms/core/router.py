@@ -142,8 +142,14 @@ class Form(object):
         self.matchdict = matchdict
 
     def __call__(self):
-        result = self.parse(**self.matchdict)
+        result = self.parse(**self.matchdict) or {}
         return self.handle(**result)
+
+    def parse(self, **kwargs):
+        pass
+
+    def handle(self):
+        pass
 
     @property
     def user(self):

@@ -91,7 +91,7 @@ def wrap(name):
                     return None
                 raise
 
-            return result or {}
+            return result
 
         decorator.__doc__ = parser.__doc__
         return parse
