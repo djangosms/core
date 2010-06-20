@@ -30,7 +30,7 @@ class Connection(models.Model):
     Examples::
 
       gsm://256703945965
-      kannel://256703945965
+      http+sms://256703945965
       twitter://bob
       email://bob@host.com
 

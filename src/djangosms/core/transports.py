@@ -29,7 +29,7 @@ from .router import route
 
 pre_route = Signal()
 post_route = Signal()
-kannel_event = Signal(providing_args=["request", "response"])
+http_event = Signal(providing_args=["name", "request", "response"])
 hangup = Signal()
 
 def shrink(string): # pragma: NOCOVER
@@ -358,45 +358,72 @@ class GSM(Message): # pragma: NOCOVER
         result = self.modem.conn.readall()
         self.logger.info(shrink(result))
 
-class Kannel(Message):
-    """Kannel transport.
+class HTTP(Message):
+    """Generic HTTP transport.
+
+    This transport is modelled after the HTTP interface to the `Kannel
+    <http://www.kannel.org>` gateway.
+
+    It uses the CGI parameter names ``\"from\"``, ``\"to\"``,
+    ``\"text\"`` and ``\"status\"`` (see :data:`handle
+    <djangosms.core.transports.HTTP.handle>``).
 
     :param name: Transport name
 
-    :param options: Dictionary; define ``'SMS_URL'`` for the URL for the *sendsms* service and ``'DLR_URL'`` to set the delivery confirmation reply
+    :param options: Dictionary; define ``'SEND_URL'`` for the (outgoing) service and ``'DLR_URL'`` to set the (incoming) delivery confirmation reply
 
-    Example configuration::
+    Example 1: Kannel
 
-      TRANSPORTS = {
-          'kannel': {
-              'TRANSPORT': 'router.transports.Kannel',
-              'SMS_URL': 'http://localhost:13013/cgi-bin/sendsms?' \
-                         'username=kannel&password=kannel',
-              'DLR_URL': 'http://localhost:8080/kannel',
+        In this example the server is listening to port ``13013`` (the
+        default) and configured with the credentials ``\"kannel\"`` /
+        ``\"kannel\"``.
+
+        Delivery confirmation is requested.
+
+        ::
+
+          TRANSPORTS = {
+              'http': {
+                  'TRANSPORT': 'router.transports.HTTP',
+                  'SEND_URL': 'http://localhost:13013/cgi-bin/sendsms?' \\
+                              'username=kannel&password=kannel',
+                  'DLR_URL': 'http://localhost:8080/incoming',
+              }
           }
-      }
+
+    Example 2: Forwarding
+
+        We can also use the ``HTTP`` transport to accept messages from
+        another DjangoSMS deployment:
+
+        ::
+
+          TRANSPORTS = {
+              'http': {
+                  'TRANSPORT': 'router.transports.HTTP',
+              }
+          }
 
     """
 
-    sms_url = None
+    send_url = None
     dlr_url = None
-
     timeout = 30.0
 
     def __init__(self, *args, **kwargs):
-        super(Kannel, self).__init__(*args, **kwargs)
+        super(HTTP, self).__init__(*args, **kwargs)
 
         reference = weakref(self)
 
         # set up event handler for incoming messages
-        def on_incoming(sender=None, request=None, response=None, **kwargs):
+        def on_incoming(sender=None, name=None, request=None, response=None, **kwargs):
             transport = reference()
-            if transport is not None:
+            if transport is not None and name == transport.name:
                 body, status_code = transport.handle(request)
                 response.write(body)
                 response.status_code = status_code
 
-        kannel_event.connect(on_incoming, sender=self.name, weak=False)
+        http_event.connect(on_incoming, weak=False)
         del on_incoming
 
         # set up event handler for outgoing messages
@@ -412,7 +439,7 @@ class Kannel(Message):
     def fetch(self, request, **kwargs): # pragma: NOCOVER
         """Fetch HTTP request.
 
-        Used internally by the Kannel transport.
+        Used internally by the HTTP transport.
 
         This method operates synchronously. Note that the method is a
         convenience for writing tests without setting up an HTTP
@@ -452,7 +479,7 @@ class Kannel(Message):
             if status:
                 message_id = int(request.GET['id'])
             else:
-                sender = request.GET['sender']
+                sender = request.GET['from']
                 text = request.GET['text']
         except Exception, exc:
             return "There was an error (``%s``) processing the request: %s." % (
@@ -472,9 +499,9 @@ class Kannel(Message):
         return "", "200 OK"
 
     def send(self, message):
-        url = self.sms_url
+        url = self.send_url
         if url is None: # PRAGMA: nocover
-            raise ValueError("Must set ``SMS_URL`` parameter for "
+            raise ValueError("Must set ``SEND_URL`` parameter for "
                              "transport: %s." % self.name)
 
         if '?' not in url:
@@ -500,3 +527,4 @@ class Kannel(Message):
         if response.status_code // 100 == 2:
             message.time = datetime.now()
             message.save()
+

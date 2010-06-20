@@ -90,22 +90,22 @@ class MessageTest(TransactionTestCase):
         self.assertTrue(len(s1), 1)
         self.assertTrue(len(s2), 1)
 
-class KannelTest(TransactionTestCase):
+class HttpTest(TransactionTestCase):
     def tearDown(self):
         import gc
         gc.collect()
 
-        super(KannelTest, self).tearDown()
+        super(HttpTest, self).tearDown()
 
     @staticmethod
-    def _make_kannel(fetch=None, **kwargs):
-        from djangosms.core.transports import Kannel
+    def _make_http(fetch=None, **kwargs):
+        from djangosms.core.transports import HTTP
         if fetch is None:
             def fetch(*args, **kwargs):
                 from django.http import HttpResponse as Response
                 return Response(u"")
 
-        kwargs.setdefault('sms_url', '')
+        kwargs.setdefault('send_url', '')
 
         def echo(form, input):
             return input
@@ -119,7 +119,7 @@ class KannelTest(TransactionTestCase):
             (r'^\+break', broken),
             ))
 
-        transport = Kannel("kannel", kwargs, router=router)
+        transport = HTTP("http+sms", kwargs, router=router)
         transport.fetch = fetch
         return transport
 
@@ -150,19 +150,19 @@ class KannelTest(TransactionTestCase):
 
     @property
     def view(self):
-        from ..views import kannel
-        return kannel
+        from ..views import incoming
+        return incoming
 
     def test_not_acceptable(self):
-        kannel = self._make_kannel()
+        http = self._make_http()
         request = self._make_request.get("/")
         response = self.view(request)
         self.assertEqual(response.status_code, "406 Not Acceptable")
 
     def test_internal_error_production_mode(self):
-        kannel = self._make_kannel()
+        http = self._make_http()
         request = self._make_request.get("/", {
-            'sender': '456',
+            'from': '456',
             'text': '+break',
             'timestamp': str(time.mktime(
                 datetime.datetime(1999, 12, 31).timetuple())),
@@ -184,9 +184,9 @@ class KannelTest(TransactionTestCase):
         self.assertEqual(response.status_code, "200 OK")
 
     def test_internal_error_debug_mode(self):
-        kannel = self._make_kannel()
+        http = self._make_http()
         request = self._make_request.get("/", {
-            'sender': '456',
+            'from': '456',
             'text': '+break',
             'timestamp': str(time.mktime(
                 datetime.datetime(1999, 12, 31).timetuple())),
@@ -201,9 +201,9 @@ class KannelTest(TransactionTestCase):
             settings.DEBUG = DEBUG
 
     def test_message_record(self):
-        kannel = self._make_kannel()
+        http = self._make_http()
         request = self._make_request.get("/", {
-            'sender': '456',
+            'from': '456',
             'text': '+echo test',
             'timestamp': str(time.mktime(
                 datetime.datetime(1999, 12, 31).timetuple())),
@@ -216,17 +216,17 @@ class KannelTest(TransactionTestCase):
         self.assertEquals(len(results), 1)
         self.assertEquals(results[0].text, u"+echo test")
         self.assertNotEqual(results[0].time, None)
-        self.assertEquals(results[0].uri, u"kannel://456")
+        self.assertEquals(results[0].uri, u"http+sms://456")
 
         from ..models import Outgoing
         outgoing = Outgoing.objects.all()
         self.assertEquals(len(outgoing), 1)
         self.assertEquals(outgoing[0].text, u"test")
-        self.assertEquals(outgoing[0].uri, u"kannel://456")
+        self.assertEquals(outgoing[0].uri, u"http+sms://456")
 
     def test_message_delivery_success(self):
         request = self._make_request.get("/", {
-            'sender': '456',
+            'from': '456',
             'text': '+echo test',
             'timestamp': str(time.mktime(
                 datetime.datetime(1999, 12, 31).timetuple())),
@@ -239,7 +239,7 @@ class KannelTest(TransactionTestCase):
                 status_code = 202
             return mock_response()
 
-        kannel = self._make_kannel(fetch=fetch, dlr_url='http://localhost')
+        http = self._make_http(fetch=fetch, dlr_url='http://localhost')
         response = self.view(request)
 
         self.assertNotEqual(query, {})
