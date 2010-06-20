@@ -6,6 +6,11 @@ from djangosms.core.router import FormatError
 
 from .models import Query
 
+class MustRegister(Form):
+    def parse(self):
+        if self.user is None:
+            raise FormatError(u"Must be a registered user.")
+
 class NotUnderstood(Form):
     def parse(self, text=None):
         raise FormatError(
@@ -28,3 +33,4 @@ class Input(Form):
         else:
             Query(source=self.request).save()
             return "We have received your input. Thank you."
+

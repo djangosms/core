@@ -17,6 +17,9 @@ ROUTES = (
     # user registration
     (keyword('reg', 'register'), 'djangosms.apps.registration.forms.Register'),
 
+    # from this route and down, users must be registered
+    (r'^', 'djangosms.apps.common.forms.MustRegister'),
+
     # unknown keyword
     (keyword(r'\w+'), 'djangosms.apps.common.forms.NotUnderstood'),
 
