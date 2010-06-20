@@ -234,6 +234,7 @@ Contents
    getting_started.rst
    messages.rst
    running.rst
+   apps.rst
    api.rst
    faq.rst
    glossary.rst

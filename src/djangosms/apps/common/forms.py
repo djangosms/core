@@ -7,18 +7,23 @@ from djangosms.core.router import FormatError
 from .models import Query
 
 class MustRegister(Form):
+    """Raises an error if user did not register."""
+
     def parse(self):
         if self.user is None:
             raise FormatError(u"Must be a registered user.")
 
 class NotUnderstood(Form):
+    """Raises an error that the message was not understood."""
+
     def parse(self, text=None):
         raise FormatError(
             "We did not understand your message: %s." % (
                 (text or "").strip() or "(empty)"))
 
 class Input(Form):
-    """Free-form input."""
+    """Records the input text in a :class:`query
+    <djangosms.apps.common.models.Query>` object."""
 
     @pico.wrap('text')
     def parse(self):
