@@ -4,7 +4,6 @@ from django.dispatch import Signal
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import memoize
-from django.template.defaultfilters import slugify
 from django.utils.importlib import import_module
 
 from .models import Route
@@ -14,6 +13,9 @@ pre_handle = Signal(providing_args=["error", "result"])
 post_handle = Signal(providing_args=["error"])
 
 _cache = {}
+
+_camelcase_to_underscore = lambda str: re.sub(
+    '(((?<=[a-z])[A-Z])|([A-Z](?![A-Z]|$)))', '_\\1', str).lower().strip('_')
 
 def _compile_routes(table):
     routes = []
@@ -96,8 +98,8 @@ def route(message, table=None):
 
     for match, handler in split(message.text, table):
         try:
-            name = handler.__name__
-            route = Route.objects.get(slug=slugify(name))
+            slug = _camelcase_to_underscore(handler.__name__)
+            route = Route.objects.get(slug=slug)
         except Route.DoesNotExist:
             route = None
 
