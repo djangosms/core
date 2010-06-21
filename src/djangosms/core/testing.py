@@ -104,5 +104,6 @@ class FormTestCase(TestCase):
         message.save()
         request = message.requests.create(message=message, text=text)
         response = form(request).handle(**kwargs)
-        request.reply(response)
+        if response is not None:
+            request.reply(response)
         return request
