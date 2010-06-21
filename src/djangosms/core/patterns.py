@@ -1,17 +1,18 @@
 import re
 
-def keyword(*terms, **kwargs):
-    """Return regular expresssion pattern that matches one or more
-    keyword terms.
+def keyword(pattern, **kwargs):
+    """Return regular expresssion pattern that matches a keyword prefix.
 
-    :param name: The group name for the remaining text (default: ``\"text\"``).
     :param prefix: Keyword prefix character (default: ``\"+\"``).
+    :param pattern: Prefix string (or pattern)
+    :param name: The group name for the remaining text (default: ``\"text\"``).
     :param split: Boolean value whether to split message on prefix character (default: ``True``).
 
     Examples::
 
-      keyword('reg', 'register')
-      keyword('reg', 'register', prefix=\"(+|@)\")
+      keyword('reg')
+      keyword('register|reg')
+      keyword('reg', prefix=\"(+|@)\")
 
     """
 
@@ -19,14 +20,10 @@ def keyword(*terms, **kwargs):
     prefix = kwargs.pop("prefix", "+")
     split = kwargs.pop("split", True)
 
-    # longest terms first
-    terms = sorted(terms, key=len, reverse=True)
-
     if split:
-        pattern = '^%s' % re.escape(prefix)
+        remaining = '^%s' % re.escape(prefix)
     else:
-        pattern = '.'
+        remaining = '.'
 
     return '^%s\s*(%s)(\s+(?P<%s>[%s]*)|$)' % (
-        re.escape(prefix), '|'.join(terms), name, pattern)
-
+        re.escape(prefix), pattern, name, remaining)

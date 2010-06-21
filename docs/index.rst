@@ -73,9 +73,9 @@ the ``"text"`` group (see the Python documentation for the `re
 <http://docs.python.org/library/re.html#re.RegexObject.groups>`_
 module). This is necessary for the message handler to know what the
 message input is (by convention). The :data:`keyword
-<djangosms.core.patterns.keyword>` helper function takes one or more
-string arguments, each of which define a valid keyword when preceded
-by a ``"+"`` symbol and optional whitespace (more configuration
+<djangosms.core.patterns.keyword>` helper function takes a subpattern
+which defines the keyword string that succeeds the default``"+"``
+symbol (prefix character) and optional whitespace (more configuration
 options are available).
 
 The routing table is defined globally in the Django settings module
