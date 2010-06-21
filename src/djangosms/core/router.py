@@ -37,7 +37,13 @@ def _compile_routes(table):
             module = import_module(module_name)
             handler = getattr(module, symbol_name)
 
-        regex = re.compile(pattern)
+        try:
+            regex = re.compile(pattern)
+        except Exception, exc:
+            raise ImproperlyConfigured(
+                "Invalid regular expression '%s': %s." % (
+                    pattern, exc))
+
         routes.append((regex, handler))
 
     return routes
