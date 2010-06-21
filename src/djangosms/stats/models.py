@@ -154,7 +154,11 @@ class Observation(models.Model):
     def __init__(self, *args, **kwargs):
         slug = kwargs.pop("slug", None)
         if slug is not None:
-            kwargs.setdefault("kind", ObservationKind.objects.get(slug=slug))
+            try:
+                kind = ObservationKind.objects.get(slug=slug)
+            except ObservationKind.DoesNotExist:
+                raise ObservationKind.DoesNotExist(slug)
+            kwargs.setdefault("kind", kind)
         super(Observation, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
