@@ -149,6 +149,9 @@ class StopError(Exception):
     def __init__(self, text=None):
         self.text = text
 
+    def __str__(self):
+        return self.text
+
 class FormatError(Exception):
     """Raised from within a handler to indicate a formatting
     error. The provided ``text`` will be used as the message reply
@@ -157,6 +160,9 @@ class FormatError(Exception):
 
     def __init__(self, text=None):
         self.text = text
+
+    def __str__(self):
+        return self.text
 
 class Form(object):
     """Class-based routing."""
