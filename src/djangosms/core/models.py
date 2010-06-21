@@ -19,6 +19,13 @@ class User(models.Model):
         user.connections.add(connection)
         return user
 
+    @property
+    def most_recent_connection(self):
+        """Returns most recently used connection."""
+
+        query = Incoming.objects.filter(connection__in=self.connections.all())
+        return query.latest().connection
+
 class Connection(models.Model):
     """Mapping between device and user.
 
@@ -76,6 +83,7 @@ class Message(models.Model):
 
     class Meta:
         ordering = ['-time']
+        get_latest_by = 'time'
 
     def __unicode__(self):
         return self.text

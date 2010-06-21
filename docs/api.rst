@@ -32,6 +32,7 @@ Models
         user object.
 
   .. autoclass:: User
+     :members: most_recent_connection
 
      .. attribute:: connections
 
