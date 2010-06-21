@@ -7,7 +7,7 @@ from django.template import RequestContext
 
 from djangosms.core.models import Incoming
 from djangosms.core.models import Connection
-from djangosms.reporters.models import Reporter
+from djangosms.reporter.models import Reporter
 
 @login_required
 def index(req):

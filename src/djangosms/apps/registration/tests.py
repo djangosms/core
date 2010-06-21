@@ -31,7 +31,7 @@ class HandlerTest(FormTestCase):
 
     def test_initial_registration(self):
         self._register(name="foo")
-        from djangosms.reporters.models import Reporter
+        from djangosms.reporter.models import Reporter
         self.assertEqual(Reporter.objects.get().name, "foo")
 
     def test_report(self):
@@ -47,7 +47,7 @@ class HandlerTest(FormTestCase):
     def test_inquire_for_ident_but_not_registered(self):
         self._register()
         request = self._register()
-        from djangosms.reporters.models import Reporter
+        from djangosms.reporter.models import Reporter
         self.assertEqual(Reporter.objects.count(), 0)
         self.assertFalse(str(request.message.connection.ident) in \
                          request.responses.get().text)
@@ -55,12 +55,12 @@ class HandlerTest(FormTestCase):
     def test_registration_update(self):
         self._register(name="foo")
         self._register(name="bar")
-        from djangosms.reporters.models import Reporter
+        from djangosms.reporter.models import Reporter
         self.assertEqual(Reporter.objects.get().name, "bar")
 
     def test_register_new_device_then_update(self):
         request = self._register(name="foo")
-        from djangosms.reporters.models import Reporter
+        from djangosms.reporter.models import Reporter
         self.assertEqual(Reporter.objects.count(), 1)
         self._register(uri="test://new", ident=request.message.connection.ident)
         self.assertEqual(Reporter.objects.count(), 1)
@@ -69,7 +69,7 @@ class HandlerTest(FormTestCase):
 
     def test_register_new_device_but_not_found(self):
         self._register(name="foo")
-        from djangosms.reporters.models import Reporter
+        from djangosms.reporter.models import Reporter
         self.assertEqual(Reporter.objects.count(), 1)
         request = self._register(uri="test://new", ident="new")
         self.assertEqual(request.message.user, None)

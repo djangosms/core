@@ -20,7 +20,7 @@ from djangosms.core.models import Connection
 from djangosms.core.router import FormatError
 from djangosms.core.router import Form
 from djangosms.stats.models import Report
-from djangosms.reporters.models import Reporter
+from djangosms.reporter.models import Reporter
 
 from django.template.defaultfilters import title
 

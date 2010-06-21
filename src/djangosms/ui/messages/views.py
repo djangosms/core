@@ -8,7 +8,7 @@ from django import forms
 from djangosms.core.models import Incoming
 from djangosms.core.models import Connection
 from djangosms.core.transports import Message
-from djangosms.reporters.models import Reporter
+from djangosms.reporter.models import Reporter
 
 transport = Message("web")
 
