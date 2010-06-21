@@ -1,0 +1,4 @@
+- model: stats.groupkind
+  pk: added_by_user
+  fields:
+    name: Added by user
