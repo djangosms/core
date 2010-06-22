@@ -45,15 +45,15 @@ def index(req):
     if req.method == 'POST':
         send_form = SendForm(req.POST)
         if send_form.is_valid():
-            if 'send' in req.POST:
-                username = req.user.username
-            if 'send_as_guest' in req.POST:
+            if 'guest' in repr(req.POST.keys()).lower():
                 connections = Connection.objects.filter(
                     uri__startswith="%s://guest" % transport.name)
                 username = "guest%d" % (len(connections) + 1)
                 reporter = Reporter(name="Guest")
                 reporter.save()
                 reporter.connections.create(uri="%s://%s" % (transport.name, username))
+            else:
+                username = req.user.username
 
             text = send_form.cleaned_data['text']
             transport.incoming(username, text)
