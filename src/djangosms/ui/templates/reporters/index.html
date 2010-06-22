@@ -11,77 +11,86 @@
 <h1>
   <a href="{% url djangosms.ui.reporters.views.index %}">Reporters</a>{% if search_string %}
   / <a href="">Search for
-      <span class="highlight">{{ search_string }}</span></a>{% endif %}
+    <span class="highlight">{{ search_string }}</span></a>{% endif %}
 </h1>
 
 <p class="help">
   Displays reporters registered with the system.
 </p>
 
-<div class="span-12">
-  <form class="inline" method="get" id="search">
-    <p>
-      <label for="q">Query:</label>
-      <input name="q" type="text" value="{{ search_string }}" />
-      <input type="submit" value="Search" />
-    </p>
-  </form>
-</div>
+<form class="inline" method="get" id="search">
+  <p>
+    <label for="q">Query:</label>
+    <input name="q" type="text" value="{{ search_string }}" />
+    <input type="submit" value="Search" />
+  </p>
+</form>
 
-<table id="reporters" class="sortable">
-  <thead>
-	{% for column, display, aggregate in columns %}
-	{% ifequal column sort_column %}
-	<th class="sorted {% if sort_descending %}descending{% else %}ascending{% endif %}">
-	  <a href="?q={{ search_string }}&sort_descending={% if sort_descending %}false{% else %}true{% endif %}&sort_column={{ column }}" title="Sort by {{ display }}{% if sort_descending %} (asc){% endif %}">
-		{{ display }}
-	  </a>
-	</th>
-	{% else %}
-	<th>
-      <a href="?q={{ search_string }}&sort_column={{ column }}"
-         title="Sort by {{ display }}">{{ display }}</a></th>
-	{% endifequal %}
-	{% endfor%}
-    <th>
-      Message
-    </th>
-  </thead>
+<form method="post" id="send">
 
-  <tbody>
-	{% for reporter, message in entries %}
-	<tr>
-      <td>{{ reporter.pk }}</td>
-      <td>
-        {{ reporter|title }}
-        {% for connection in reporter.connections.all %}
-        <pre>{{ connection }}</pre>
-        {% endfor %}
-      </td>
-	  <td>{{ message.time|date:"d-M-Y H:i:s" }}</td>
-	  <td class="message-text">
-        {% if message.forms.all %}
-        <ul>
-          {% for form in message.forms.all %}
-          <li class="{% if form.erroneous %} erroneous{% endif %}">
-            <tt class="message-text">{{ form.text }}</tt>
-            <span class="form-kind form-{{ form.kind }}">({{ form.kind }})</span>
-            <ul>
-              {% for outgoing in form.replies.all %}
-              <li class="{% if outgoing.is_response %}response{% else %}alert{% endif %}">
-                {{ outgoing.text }}
-              </li>
-              {% endfor %}
-            </ul>
-          </li>
+  <p class="inline">
+    <label for="text">Text:</label>
+    <input size="40" name="text" type="text" value="{{ text }}" />
+    <input type="submit" value="Send to selected" />
+  </p>
+
+  <table id="reporters" class="sortable">
+    <thead>
+	  {% for column, display, aggregate in columns %}
+	  {% ifequal column sort_column %}
+	  <th class="sorted {% if sort_descending %}descending{% else %}ascending{% endif %}">
+	    <a href="?q={{ search_string }}&sort_descending={% if sort_descending %}false{% else %}true{% endif %}&sort_column={{ column }}" title="Sort by {{ display }}{% if sort_descending %} (asc){% endif %}">
+		  {{ display }}
+	    </a>
+	  </th>
+	  {% else %}
+	  <th>
+        <a href="?q={{ search_string }}&sort_column={{ column }}"
+           title="Sort by {{ display }}">{{ display }}</a></th>
+	  {% endifequal %}
+	  {% endfor%}
+      <th>
+        Message
+      </th>
+    </thead>
+
+    <tbody>
+	  {% for reporter, message in entries %}
+	  <tr>
+        <td>
+          <label for="name">{{ reporter.pk }}</label>
+          <input name="reporter" type="checkbox" value="{{ reporter.pk }}" />
+        <td>
+          {{ reporter|title }}
+          {% for connection in reporter.connections.all %}
+          <pre>{{ connection }}</pre>
           {% endfor %}
-        </ul>
-        {% else %}
-        <tt class="message-text">{{ message.text }}</tt>
-        {% endif %}
-      </td>
-	</tr>
-	{% endfor %}
-  </tbody>
-</table>
+        </td>
+	    <td>{{ message.time|date:"d-M-Y H:i:s" }}</td>
+	    <td class="message-text">
+          {% if message.forms.all %}
+          <ul>
+            {% for form in message.forms.all %}
+            <li class="{% if form.erroneous %} erroneous{% endif %}">
+              <tt class="message-text">{{ form.text }}</tt>
+              <span class="form-kind form-{{ form.kind }}">({{ form.kind }})</span>
+              <ul>
+                {% for outgoing in form.replies.all %}
+                <li class="{% if outgoing.is_response %}response{% else %}alert{% endif %}">
+                  {{ outgoing.text }}
+                </li>
+                {% endfor %}
+              </ul>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <tt class="message-text">{{ message.text }}</tt>
+          {% endif %}
+        </td>
+	  </tr>
+	  {% endfor %}
+    </tbody>
+  </table>
+</form>
 {% endblock %}

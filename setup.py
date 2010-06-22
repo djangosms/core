@@ -30,6 +30,7 @@ version = sys.version_info[:3]
 install_requires = [
     'Django',
     'Django-Treebeard',
+    'Django-Notify',
     'PasteScript',
     'PasteDeploy',
     'Iso8601',

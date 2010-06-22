@@ -1,16 +1,52 @@
+from urllib import urlencode
+
 from django.db.models import Q
 from django.db.models import aggregates
 from django.core.paginator import Paginator
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
+from django.http import HttpResponseRedirect
+from django import forms
 
-from djangosms.core.models import Incoming
 from djangosms.core.models import Connection
+from djangosms.core.models import Incoming
+from djangosms.core.models import Outgoing
+from djangosms.core.models import User
+
 from djangosms.reporter.models import Reporter
+
+class SendForm(forms.Form):
+    text = forms.CharField(
+        label="Text",
+        max_length=255,
+        widget=forms.TextInput(
+            attrs={'size':'40'}),
+        required=False,
+        )
 
 @login_required
 def index(req):
+    form = SendForm(req.POST)
+    if req.method == 'POST' and form.is_valid():
+        text = form.cleaned_data.get('text') or None
+        reporters = req.POST.getlist('reporter')
+
+        if text is None:
+            req.notifications.add(u"No text was submitted; ignored.")
+        else:
+            for pk in reporters:
+                user = User.objects.get(pk=pk)
+                uri = user.most_recent_connection.uri
+                message = Outgoing(text=text, uri=uri)
+                message.save()
+
+            req.notifications.add(
+                u"Message sent to %d recipient(s)." % len(reporters))
+
+        # redirect to GET action
+        return HttpResponseRedirect(req.path)
+
     columns = (
         ("id", "#", None),
         ("name", "Name", None),

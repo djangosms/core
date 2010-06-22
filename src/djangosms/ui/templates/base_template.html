@@ -66,6 +66,14 @@
       </div><!-- End Container Class -->
 	  <div id="inner">
 		<div class="container">
+          {% if notifications %}
+          <ul class="notifications">
+            {% for message in notifications %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
           {% block content %}{% endblock %}
 
 		</div><!-- End Container Class -->

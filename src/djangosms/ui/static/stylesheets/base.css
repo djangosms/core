@@ -64,7 +64,14 @@ form.inline {
   float: left;
 }
 
-form.inline p {
+td label {
+  display: inline;
+  float: right;
+  font-weight: normal;;
+}
+
+form.inline p,
+form p.inline {
   display: inline;
   float: left;
   margin-left: 1em;

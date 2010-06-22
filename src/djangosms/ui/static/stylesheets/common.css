@@ -59,3 +59,16 @@ form#login-form {
   width: 50%;
   margin-left: 25%;
 }
+
+ul.notifications {
+  border: 3px solid yellow;
+  padding: 1em;
+  margin: 0 0 1.5em 0;
+}
+
+ul.notifications li {
+  background: url(../icons/silk/information.png) no-repeat left center;
+  font-weight: bold;
+  padding-left: 20px;
+  line-height: 1.5em;
+}
