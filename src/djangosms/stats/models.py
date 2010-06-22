@@ -72,7 +72,10 @@ class Report(models.Model):
     def __init__(self, *args, **kwargs):
         slug = kwargs.pop("slug", None)
         if slug is not None:
-            kwargs.setdefault("kind", ReportKind.objects.get(slug=slug))
+            try:
+                kwargs.setdefault("kind", ReportKind.objects.get(slug=slug))
+            except ReportKind.DoesNotExist:
+                raise ReportKind.DoesNotExist(slug)
         super(Report, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
