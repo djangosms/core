@@ -24,7 +24,10 @@ class User(models.Model):
         """Returns most recently used connection."""
 
         query = Incoming.objects.filter(connection__in=self.connections.all())
-        return query.latest().connection
+        if not query:
+            return self.connections.order_by('-pk')[0]
+        else:
+            return query.latest().connection
 
 class Connection(models.Model):
     """Mapping between device and user.
