@@ -60,11 +60,18 @@
         <td>
           <label for="name">{{ reporter.pk }}</label>
           <input name="reporter" type="checkbox" value="{{ reporter.pk }}" />
+        </td>
         <td>
           {{ reporter|title }}
           {% for connection in reporter.connections.all %}
           <pre>{{ connection }}</pre>
           {% endfor %}
+        </td>
+        <td>{{ reporter.group.name }}</td>
+        <td>
+        	{% for role in reporter.roles.all %}
+        		{{ role.name }}<br/>
+            {% endfor %}
         </td>
 	    <td>{{ message.time|date:"d-M-Y H:i:s" }}</td>
 	    <td class="message-text">

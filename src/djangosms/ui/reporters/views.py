@@ -50,6 +50,8 @@ def index(req):
     columns = (
         ("id", "#", None),
         ("name", "Name", None),
+        ("group", "Location", None),
+        ("role", "Role", "roles__name"),
         ("activity", "Last activity", "connections__messages__time"),
         )
 
@@ -71,7 +73,9 @@ def index(req):
 
         query = Reporter.objects.filter(
             Q(name__icontains=search_string) |
-            Q(pk__in=pks))
+            Q(pk__in=pks) | Q(group__name__icontains=search_string) |
+            Q(roles__name__icontains=search_string)
+        )
 
     for name, title, aggregate in columns:
         if name != sort_column:
