@@ -89,8 +89,15 @@ def index(req):
 
         break
 
-    paginator = Paginator(query, 25)
     entries = []
+    
+    try:
+        page = int(req.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+
+    paginator = Paginator(query, 25).page(page)
+
     for reporter in paginator.object_list:
         messages = Incoming.objects.filter(
             connection__in=reporter.connections.all())
@@ -108,7 +115,8 @@ def index(req):
         "columns": columns,
         "sort_column": sort_column,
         "sort_descending": sort_descending,
-        "search_string": search_string
+        "search_string": search_string,
+        "req": req
         }, RequestContext(req))
 
 

@@ -1,0 +1,42 @@
+{% load i18n %}
+<div class="pagination">
+    <span class="step-links">
+    {% if page.has_previous %}
+        <a href="?{{ query }}&page={{ page.previous_page_number }}" class="previous">{% trans "previous" %}</a>
+    {% endif %}
+
+        {% for pnum in begin %}
+            {% ifequal page.number pnum %}
+                <span class="current">{{ pnum }}</span>
+            {% else %}
+                <a href="?{{ query }}&page={{ pnum }}">{{ pnum }}</a>
+            {% endifequal %}
+        {% endfor %}
+
+        {% if middle %}
+            <span class="continue">...</span>
+            {% for pnum in middle %}
+                {% ifequal page.number pnum %}
+                    <span class="current">{{ pnum }}</span>
+                {% else %}
+                    <a href="?{{ query }}&page={{ pnum }}">{{ pnum }}</a>
+                {% endifequal %}
+            {% endfor %}
+        {% endif %}
+
+        {% if end %}
+            <span class="continue">...</span>
+            {% for pnum in end %}
+                {% ifequal page.number pnum %}
+                    <span class="current">{{ pnum }}</span>
+                {% else %}
+                    <a href="?{{ query }}&page={{ pnum }}">{{ pnum }}</a>
+                {% endifequal %}
+            {% endfor %}
+        {% endif %}
+
+    {% if page.has_next %}
+        <a href="?{{ query }}&page={{ page.next_page_number }}" class="next">{% trans "next" %}</a>
+    {% endif %}
+    </span>
+</div>

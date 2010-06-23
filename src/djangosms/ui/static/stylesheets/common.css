@@ -72,3 +72,17 @@ ul.notifications li {
   padding-left: 20px;
   line-height: 1.5em;
 }
+
+.pagination {
+  margin: 1em;
+  text-align: center;
+}
+
+.pagination a {
+  color: black;
+}
+
+.pagination span.current {
+  border: 1px solid #bbb;
+  padding: 1px;
+}
