@@ -28,11 +28,15 @@ class User(models.Model):
             return query.latest().connection
         except Incoming.DoesNotExist:
             return self.connections.order_by('-pk')[0]
-    
+
+    def __unicode__(self):
+        return "User (%d) @ %s" % (
+            self.pk, "; ".join(map(str, self.connections.all())))
+        
 class Connection(models.Model):
     """Mapping between device and user.
 
-    The ``uri`` attribute identifies the device in terms of the
+    The ``uri`` attribute identifies the device in terms of the@ 
     transport used and the unique identifier within that transport::
 
       <transport>://<ident>
