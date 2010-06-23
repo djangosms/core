@@ -28,7 +28,7 @@ class User(models.Model):
             return query.latest().connection
         except Incoming.DoesNotExist:
             return self.connections.order_by('-pk')[0]
-        
+    
 class Connection(models.Model):
     """Mapping between device and user.
 
