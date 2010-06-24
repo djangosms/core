@@ -83,9 +83,9 @@
           </span>
         </td>
       </tr>
-	  {% for reporter, message in entries %}
+	  {% for reporter, message, is_outgoing in entries %}
 	  <tr>
-        <td style="width: 3em">
+        <td style="white-space: nowrap">
 	        <label for="reporter">{{ reporter.pk }}</label>
             <input name="reporter" type="checkbox" value="{{ reporter.pk }}" />
         </td>
@@ -96,32 +96,25 @@
           {% endfor %}
         </td>
         <td>{{ reporter.group.name }}</td>
-        <td>
+        <td style="white-space: nowrap">
         	{% for role in reporter.roles.all %}
         		{{ role.name }}<br/>
             {% endfor %}
         </td>
-	    <td>{{ message.time|date:"d-M-Y H:i:s" }}</td>
+	    <td>
+	    	<span style="white-space:nowrap">{{ message.time|date:"d-M-Y H:i" }}</span>
+	    </td>
 	    <td class="message-text">
-          {% if message.forms.all %}
-          <ul>
-            {% for form in message.forms.all %}
-            <li class="{% if form.erroneous %} erroneous{% endif %}">
-              <tt class="message-text">{{ form.text }}</tt>
-              <span class="form-kind form-{{ form.kind }}">({{ form.kind }})</span>
-              <ul>
-                {% for outgoing in form.replies.all %}
-                <li class="{% if outgoing.is_response %}response{% else %}alert{% endif %}">
-                  {{ outgoing.text }}
-                </li>
-                {% endfor %}
-              </ul>
-            </li>
-            {% endfor %}
-          </ul>
-          {% else %}
-          <tt class="message-text">{{ message.text }}</tt>
-          {% endif %}
+	    	{% if message %}
+	    		<tt class="message-text">
+		  		{% if is_outgoing %}	    
+          			&gt;&gt;&gt; 	    
+	      		{% else %}
+	      			&lt;&lt;&lt; 
+	      		{% endif %}
+	      		{{ message.text }}
+	      		</tt>
+	        {% endif %}
         </td>
 	  </tr>
 	  {% endfor %}

@@ -10,8 +10,10 @@ from django.http import HttpResponseRedirect
 from django import forms
 
 from djangosms.core.models import Connection
+from djangosms.core.models import Message
 from djangosms.core.models import Incoming
 from djangosms.core.models import Outgoing
+from djangosms.core.models import Request
 from djangosms.core.models import User
 
 from djangosms.reporter.models import Reporter
@@ -68,9 +70,10 @@ def index(req):
             if not req.POST.get('all'):
                 query = Reporter.objects.filter(pk__in=reporters)
                 
+            request = Request(text=text)
             for reporter in query.all():
                 uri = reporter.most_recent_connection.uri
-                message = Outgoing(text=text, uri=uri)
+                message = Outgoing(text=text, uri=uri, in_response_to=request)
                 message.save()
 
             req.notifications.add(
@@ -103,16 +106,21 @@ def index(req):
     paginator = paginator.page(page)
 
     for reporter in paginator.object_list:
-        messages = Incoming.objects.filter(
-            connection__in=reporter.connections.all())
-
-        if messages:
-            message = messages[0]
-        else:
+        
+        try:
+            message = Message.objects.filter(
+                connection__in=reporter.connections.all()).latest()
+            
+        except Message.DoesNotExist:
             message = None
+            is_outgoing_message = 0
 
-        entries.append((reporter, message))
+        else:
+            is_outgoing_message = Outgoing.objects.filter(
+                    pk=message.pk).count()
 
+        entries.append((reporter, message, is_outgoing_message))        
+        
     return render_to_response("reporters/index.html", {
         "entries": entries,
         "paginator": paginator,
