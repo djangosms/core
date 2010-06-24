@@ -45,8 +45,6 @@ def index(req):
     except ValueError:
         page = 1
 
-    paginator = Paginator(query, 25).page(page)
-
     if req.method == 'POST':
         send_form = SendForm(req.POST)
         if send_form.is_valid():
@@ -64,6 +62,8 @@ def index(req):
             transport.incoming(username, text)
     else:
         send_form = SendForm()
+
+    paginator = Paginator(query, 25).page(page)
 
     return render_to_response("messages/index.html", {
         "send_form": send_form,
