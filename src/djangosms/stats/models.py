@@ -1,7 +1,10 @@
 from django.db import models
 
 from djangosms.core.models import Request
+from djangosms.core.models import Message
 from treebeard.mp_tree import MP_Node
+
+from djangosms.core.transports import post_route
 
 RENDERERS = (
     ('timedelta', 'Time delta'),
@@ -12,6 +15,20 @@ AGGREGATORS = (
     ('avg', 'Average'),
     ('sum', 'Sum'),
     )
+
+def message_stats_callback(sender, **kwargs):
+    observations = {
+      'messages_total_incoming': 1
+    }
+    
+    is_erroneous = Request.objects.filter(message=sender, erroneous=True).count()
+    if is_erroneous:
+        observations['messages_total_erroneous'] = 1        
+        
+    Report.from_observations(
+       'messages', source=sender, **observations)
+    
+post_route.connect(message_stats_callback)
 
 class GroupKind(models.Model):
     name = models.CharField(max_length=50)
@@ -62,7 +79,7 @@ class ReportKind(models.Model):
         return self.slug != getattr(other, "slug", other)
 
 class Report(models.Model):
-    source = models.ForeignKey(Request, null=True)
+    source = models.ForeignKey(Message, null=True)
     group = models.ForeignKey(Group, null=True)
     kind = models.ForeignKey(ReportKind, db_index=True)
 
@@ -89,7 +106,7 @@ class Report(models.Model):
         """Create a report from a set of observations.
 
         :param slug: Report kind slug.
-        :param source: The source from which this report originated.
+        :param source: The source from which this report originated (a :class:`Message <djangosms.core.models.Message>`).
         :param group: The group that this report belongs to.
 
         In this example we'll set up an Epidemiology report for
@@ -166,3 +183,4 @@ class Observation(models.Model):
 
     def __unicode__(self):
         return "%s=%s" % (self.kind.name, self.value)
+

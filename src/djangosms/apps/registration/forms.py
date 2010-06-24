@@ -101,7 +101,7 @@ class Register(Form):
 
             if created:
                 Report.from_observations(
-                    "registration", new_reporter=1, source=self.request)
+                    "registration", new_reporter=1, source=self.request.message)
 
                 return "Welcome, %s. " \
                        "You have been registered." % title(name)

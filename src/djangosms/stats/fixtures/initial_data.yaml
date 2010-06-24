@@ -2,3 +2,20 @@
   pk: added_by_user
   fields:
     name: Added by user
+
+- model: stats.reportkind
+  pk: messages
+  fields:
+    name: Messages 
+
+- model: stats.observationkind
+  pk: messages_total_incoming
+  fields:
+    name: Incoming
+    group: messages
+ 
+- model: stats.observationkind
+  pk: messages_total_erroneous
+  fields:
+    name: Errors
+    group: messages

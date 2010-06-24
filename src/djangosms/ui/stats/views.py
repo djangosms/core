@@ -136,14 +136,15 @@ def reports(req):
         else:
             query = Report.objects.filter(group=None)
 
+        query = query.select_related(depth=1)
+
         for report_kind in report_kinds:
             by_observation_kind = by_report_kind.setdefault(
                 report_kind, {})
 
-            # to-do: this is probably a slow query
             reports = query.filter(
                 kind=report_kind,
-                source__message__time__gte=gte).all()
+                source__time__gte=gte).all()
 
             for observation_kind in report_kind.observation_kinds.all():
                 observations = Observation.objects.filter(
