@@ -9,9 +9,12 @@
 
 {% block content %}
 <h1>
-  <a href="{% url djangosms.ui.reporters.views.index %}">Reporters</a>{% if search_string %}
-  / <a href="">Search for
-    <span class="highlight">{{ search_string }}</span></a>{% endif %}
+  <a href="{% url djangosms.ui.reporters.views.index %}">Reporters</a>
+  {% if search_string %}
+  	/ <a href="">Search for
+    	<span class="highlight">{{ search_string }}</span></a>
+    	({{ count }} results)
+  {% endif %}
 </h1>
 
 <p class="help">
@@ -55,11 +58,27 @@
     </thead>
 
     <tbody>
+      <tr>
+        <td>
+          <input type="checkbox" name="all" id="checkAllReporters"/>
+          <script language="JavaScript">
+          $('#checkAllReporters').click(
+   			function()
+   			{
+      			$("INPUT[type='checkbox'][name='reporter']").attr('checked', $('#checkAllReporters').is(':checked'));   
+   			}
+		  ); 
+		  </script>       
+        </td>
+        <td colspan="{{ columns|length }}">
+          Select all {{ count }}
+        </td>
+      </tr>
 	  {% for reporter, message in entries %}
 	  <tr>
-        <td>
-          <label for="name">{{ reporter.pk }}</label>
-          <input name="reporter" type="checkbox" value="{{ reporter.pk }}" />
+        <td style="width: 3em">
+	        <label for="reporter">{{ reporter.pk }}</label>
+            <input name="reporter" type="checkbox" value="{{ reporter.pk }}" />
         </td>
         <td>
           {{ reporter|title }}

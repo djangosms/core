@@ -27,26 +27,6 @@ class SendForm(forms.Form):
 
 @login_required
 def index(req):
-    form = SendForm(req.POST)
-    if req.method == 'POST' and form.is_valid():
-        text = form.cleaned_data.get('text') or None
-        reporters = req.POST.getlist('reporter')
-
-        if text is None:
-            req.notifications.add(u"No text was submitted; ignored.")
-        else:
-            for pk in reporters:
-                user = User.objects.get(pk=pk)
-                uri = user.most_recent_connection.uri
-                message = Outgoing(text=text, uri=uri)
-                message.save()
-
-            req.notifications.add(
-                u"Message sent to %d recipient(s)." % len(reporters))
-
-        # redirect to GET action
-        return HttpResponseRedirect(req.path)
-
     columns = (
         ("id", "#", None),
         ("name", "Name", None),
@@ -77,6 +57,28 @@ def index(req):
             Q(roles__name__icontains=search_string)
         )
 
+    form = SendForm(req.POST)
+    if req.method == 'POST' and form.is_valid():
+        text = form.cleaned_data.get('text') or None
+        reporters = req.POST.getlist('reporter')
+
+        if text is None:
+            req.notifications.add(u"No text was submitted; ignored.")
+        else:
+            if not req.POST.get('all'):
+                query = Reporter.objects.filter(pk__in=reporters)
+                
+            for reporter in query.all():
+                uri = reporter.most_recent_connection.uri
+                message = Outgoing(text=text, uri=uri)
+                message.save()
+
+            req.notifications.add(
+                u"Message sent to %d recipient(s)." % len(reporters))
+
+        # redirect to GET action
+        return HttpResponseRedirect(req.path)
+
     for name, title, aggregate in columns:
         if name != sort_column:
             continue
@@ -96,7 +98,9 @@ def index(req):
     except ValueError:
         page = 1
 
-    paginator = Paginator(query, 25).page(page)
+    paginator = Paginator(query, 25)
+    count = paginator.count
+    paginator = paginator.page(page)
 
     for reporter in paginator.object_list:
         messages = Incoming.objects.filter(
@@ -116,7 +120,8 @@ def index(req):
         "sort_column": sort_column,
         "sort_descending": sort_descending,
         "search_string": search_string,
-        "req": req
+        "req": req,
+        "count" : count
         }, RequestContext(req))
 
 
