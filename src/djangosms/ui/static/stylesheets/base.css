@@ -81,7 +81,7 @@ table {
   clear: both;
 }
 
-p.help {
+.help {
   color: #389ece;
   font-weight: bold;
   margin-bottom: 1em;

@@ -65,13 +65,22 @@
           $('#checkAllReporters').click(
    			function()
    			{
-      			$("INPUT[type='checkbox'][name='reporter']").attr('checked', $('#checkAllReporters').is(':checked'));   
+   				var state = $('#checkAllReporters').is(':checked');
+      			$("INPUT[type='checkbox'][name='reporter']").attr('checked', state);
+      			if (state) {
+      				$('#totalSelected').show();
+      			} else {
+      				$('#totalSelected').hide();
+      			} 
    			}
 		  ); 
 		  </script>       
         </td>
         <td colspan="{{ columns|length }}">
-          Select all {{ count }}
+          Select all 
+          <span id="totalSelected" style="display:none" class="help">
+          	({{count}} total items selected)
+          </span>
         </td>
       </tr>
 	  {% for reporter, message in entries %}
