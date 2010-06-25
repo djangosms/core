@@ -171,7 +171,7 @@ Signals
 
 .. data:: djangosms.core.transports.pre_route(sender=None)
 
-   Called *before* an incoming message is parsed.
+   Called *before* an incoming message is routed.
 
    The ``sender`` of this signal is an
    :class:`djangosms.core.models.Incoming` instance.
@@ -182,7 +182,7 @@ Signals
 
 .. data:: djangosms.core.transports.post_route(sender=None)
 
-   Called *after* an incoming message was parsed.
+   Called *after* an incoming message was routed.
 
 GSM
 ---
