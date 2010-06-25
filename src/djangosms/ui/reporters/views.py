@@ -69,8 +69,10 @@ def index(req):
         else:
             if not req.POST.get('all'):
                 query = Reporter.objects.filter(pk__in=reporters)
-                
+
             request = Request(text=text)
+            request.save()
+
             for reporter in query.all():
                 uri = reporter.most_recent_connection.uri
                 message = Outgoing(text=text, uri=uri, in_response_to=request)
