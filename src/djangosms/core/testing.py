@@ -96,7 +96,7 @@ class FormTestCase(TestCase):
 
         from .models import Incoming
         from datetime import datetime
-        time = datetime(1999, 12, 31, 0, 0, 0)
+        time = datetime.utcnow()
         message = Incoming(text=text, time=time, uri=uri)
         from .models import Connection
         message.connection, created = Connection.objects.get_or_create(uri=uri)
