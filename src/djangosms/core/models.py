@@ -84,7 +84,7 @@ class Message(models.Model):
 
     uri = None
     text = models.CharField(max_length=160*3)
-    time = models.DateTimeField(auto_now_add=True)
+    time = models.DateTimeField(null=True)
     connection = CustomForeignKey(
         Connection, column="uri", related_name="messages", null=True)
 
