@@ -87,7 +87,7 @@ def wrap(name):
                 # backwards compatible with older version of
                 # picoparse; this is equivalent to not
                 # matching
-                if 'Commit / cut called' in str(exc):
+                if 'Commit / cut called' in unicode(exc):
                     return None
                 raise
 
