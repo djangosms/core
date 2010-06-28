@@ -38,7 +38,7 @@ def _compile_routes(table):
             handler = getattr(module, symbol_name)
 
         try:
-            regex = re.compile(pattern)
+            regex = re.compile(pattern, re.IGNORECASE)
         except Exception, exc:
             raise ImproperlyConfigured(
                 "Invalid regular expression '%s': %s." % (
