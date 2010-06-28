@@ -82,13 +82,13 @@ def wrap(name):
             try:
                 result, remaining = run_parser(partial(parser, *args, **kwargs), text)
             except NoMatch:
-                return None
+                return
             except Exception, exc: # pragma: NOCOVER
                 # backwards compatible with older version of
                 # picoparse; this is equivalent to not
                 # matching
                 if 'Commit / cut called' in unicode(exc):
-                    return None
+                    return
                 raise
 
             return result

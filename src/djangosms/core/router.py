@@ -173,6 +173,8 @@ class Form(object):
 
     def __call__(self):
         result = self.parse(**self.matchdict) or {}
+        if result is None:
+            raise FormatError()
         return self.handle(**result)
 
     def parse(self, **kwargs):
