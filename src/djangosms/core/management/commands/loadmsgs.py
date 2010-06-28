@@ -1,5 +1,6 @@
 import yaml
 import iso8601
+import traceback
 
 from django.core.management.base import BaseCommand
 
@@ -15,5 +16,9 @@ class Command(BaseCommand):
             time = iso8601.parse_date(entry['time'])
             name, ident = entry['uri'].split('://')
 
-            message = handle(ident, entry['text'], time=time, name=name)
+            try:
+                message = handle(ident, entry['text'], time=time, name=name)
+            except Exception, exc:
+                print traceback.format_exc(exc)
+                continue
             print format_incoming(message)
