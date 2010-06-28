@@ -1,3 +1,5 @@
+import pytz
+import time
 import datetime
 import itertools
 
@@ -23,6 +25,8 @@ from picoparse.text import caseless_string
 from picoparse.text import lexeme
 from picoparse.text import whitespace
 from picoparse.text import whitespace1
+
+from django.conf import settings
 
 comma = partial(one_of, ',')
 dot = partial(one_of, '.')
@@ -60,7 +64,9 @@ def _parse_date_format(date_format):
     parsers = map(tri, map(_date_format_mapping.get, tokens))
     date_string = "".join(itertools.chain(*[parser() for parser in parsers]))
     try:
-        return datetime.datetime.strptime(date_string, date_format)
+        return datetime.datetime(
+            tzinfo=pytz.timezone(settings.TIME_ZONE),
+            *time.strptime(date_string, date_format)[0:6])
     except:
         fail()
 
@@ -195,11 +201,11 @@ def date(formats=("%m/%d/%Y",)):
     demonstrate some of them here:
 
     >>> run_parser(date, '12/31/1999')[0].isoformat()
-    '1999-12-31T00:00:00'
+    '1999-12-31T00:00:00-06:00'
     >>> run_parser(date, 'December 31, 1999')[0].isoformat()
-    '1999-12-31T00:00:00'
+    '1999-12-31T00:00:00-06:00'
     >>> run_parser(date, '12/31/99')[0].isoformat()
-    '1999-12-31T00:00:00'
+    '1999-12-31T00:00:00-06:00'
     """
 
     parsers = [partial(_parse_date_format, f) for f in formats]
