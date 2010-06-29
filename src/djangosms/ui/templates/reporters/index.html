@@ -30,7 +30,7 @@
 </form>
 
 <form method="post" id="send">
-
+    {% csrf_token %}
   <p class="inline">
     <label for="text">Text:</label>
     <input size="40" name="text" type="text" value="{{ text }}" />
@@ -86,8 +86,8 @@
 	  {% for reporter, message, is_outgoing in entries %}
 	  <tr>
         <td style="white-space: nowrap">
-	        <label for="reporter">{{ reporter.pk }}</label>
             <input name="reporter" type="checkbox" value="{{ reporter.pk }}" />
+	        <label for="reporter">{{ reporter.pk }}</label>            
         </td>
         <td>
           {{ reporter|title }}
