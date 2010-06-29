@@ -1,7 +1,5 @@
-from urllib import urlencode
-
 from django.db.models import Q
-from django.db.models import aggregates
+from django.db.models.aggregates import Max
 from django.core.paginator import Paginator
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
@@ -11,7 +9,6 @@ from django import forms
 
 from djangosms.core.models import Connection
 from djangosms.core.models import Message
-from djangosms.core.models import Incoming
 from djangosms.core.models import Outgoing
 from djangosms.core.models import Request
 from djangosms.core.models import User
@@ -33,8 +30,8 @@ def index(req):
         ("id", "#", None),
         ("name", "Name", None),
         ("group", "Location", None),
-        ("role", "Role", "roles__name"),
-        ("activity", "Last activity", "connections__messages__time"),
+        ("role", "Role", Max("roles__name")),
+        ("activity", "Last activity", Max("connections__messages__time")),
         )
 
     sort_column, sort_descending = _get_sort_info(
@@ -89,7 +86,7 @@ def index(req):
             continue
 
         if aggregate:
-            query = query.annotate(**{name: aggregates.Max(aggregate)})
+            query = query.annotate(**{name: aggregate})
 
         sort_desc_string = "-" if sort_descending else ""
         query = query.order_by("%s%s" % (sort_desc_string, name)).all()
@@ -97,7 +94,7 @@ def index(req):
         break
 
     entries = []
-    
+
     try:
         page = int(req.GET.get('page', '1'))
     except ValueError:
@@ -108,11 +105,10 @@ def index(req):
     paginator = paginator.page(page)
 
     for reporter in paginator.object_list:
-        
         try:
             message = Message.objects.filter(
                 connection__in=reporter.connections.all()).latest()
-            
+
         except Message.DoesNotExist:
             message = None
             is_outgoing_message = 0
@@ -121,8 +117,8 @@ def index(req):
             is_outgoing_message = Outgoing.objects.filter(
                     pk=message.pk).count()
 
-        entries.append((reporter, message, is_outgoing_message))        
-        
+        entries.append((reporter, message, is_outgoing_message))
+
     return render_to_response("reporters/index.html", {
         "entries": entries,
         "paginator": paginator,
