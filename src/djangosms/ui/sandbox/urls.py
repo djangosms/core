@@ -5,5 +5,5 @@ from . import views
 
 urlpatterns = patterns(
     '',
-    url(r'^sandbox/?$', views.index),
+    url(r'^training/?$', views.index),
 )

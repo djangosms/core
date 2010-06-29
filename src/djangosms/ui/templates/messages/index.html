@@ -15,10 +15,9 @@
 </h1>
 
 <p class="help">
-  Displays recent messages and lets you send a message to the system.
+  Review recent messages, reply to selected users or send a new message to the system.
 </p>
 
-<div class="span-12">
   <form class="inline" method="get" id="search">
     <p>
       <label for="q">Query:</label>
@@ -26,16 +25,15 @@
       <input type="submit" value="Search" />
     </p>
   </form>
-  <form class="inline" method="post">
-    {% csrf_token %}
-    {{ send_form.as_p }}
-    <p>
-      <br />
+  <form method="post">
+      {% csrf_token %}
+    <p class="inline">
+      <label for="text">Text:</label>
+   	  <input size="40" name="text" type="text" value="{{ text }}" />
+      <input type="submit" name="reply" value="Reply to selected" />
       <input type="submit" name="send" value="Send" />
-      <input type="submit" name="send_as_guest" value="Send as guest" />
     </p>
-  </form>
-</div>
+
 <table id="message-log" class="sortable">
   <thead>
 	{% for column, display in columns %}
@@ -57,50 +55,51 @@
 	{% for message, reporter in entries %}
 	<tr>
 	  <td>{{ message.time|date:"d-M-Y H:i:s" }}</td>
-	  <td>
+	  <td style="white-space:nowrap">
         {% if reporter %}
-        {{ reporter|title }}
+        {{ reporter|title }}<br/>
         {% endif %}
-        <pre>{{ message.connection }}</pre>
+        <input type="checkbox" name="messages" value="{{ message.pk }}"/>
+        <label for="messages">{{ message.connection }}</label>
       </td>
 	  <td class="message-text">
         {% if message.requests.count %}
-        <ul>
+          <ul>
           {% for request in message.requests.all %}
-          <li class="{% if request.erroneous %} erroneous{% endif %}">
-            {% if request.responses.count %}
-            	{% if request.text %}
-					<tt class="message-text">{{ request.text }}</tt>
-           		{% else %}
-	            	<tt class="message-text">{{ message.text }}</tt>
-            	{% endif %}
-            {% else %}
-            	<tt class="message-text">{{ request.text }}</tt>
-            {% endif %}
-
-            {% if request.route %}
-            <span class="request-kind form-{{ request.route }}">
-              ({{ request.route }})
-            </span>
-            {% endif %}
-            <ul>
-              {% for response in request.responses.all %}
-              <li class="response {% if response.is_reply %}reply{% endif %}">
-                {{ response.text }}
-              </li>
-              {% endfor %}
-            </ul>
-          </li>
-          {% endfor %}
-        </ul>
+          		<li class="{% if request.erroneous %} erroneous{% endif %}">
+            		{% if request.responses.count %}
+            			{% if request.text %}
+							<tt class="message-text">{{ request.text }}</tt>
+           				{% else %}
+		            		<tt class="message-text route-{{ request.route|slugify }}">{{ message.text }}</tt>
+	            		{% endif %}
+            		{% else %}
+		            	<tt class="message-text">{{ request.text }}</tt>
+            		{% endif %}
+            		{% if request.route %}
+            			<span class="request-kind route-{{ request.route|slugify }}">
+	              			({{ request.route }})
+            			</span>
+            		{% endif %}
+            		<ul>
+              		{% for response in request.responses.all %}
+              			<li class="response {% if response.is_reply %}reply{% endif %} {% if request.route.slug == 'web' %}web-response{% endif %}">
+			                {{ response.text }}
+              			</li>
+              		{% endfor %}
+		            </ul>
+          		</li>
+          	{% endfor %}
+        	</ul>
         {% else %}
-        <tt class="message-text">{{ message.text }}</tt>
+        	<tt class="message-text">{{ message.text }}</tt>
         {% endif %}
       </td>
 	</tr>
 	{% endfor %}
   </tbody>
 </table>
+</form>
 
 {% load pagination %}
 {% pagination paginator req %}

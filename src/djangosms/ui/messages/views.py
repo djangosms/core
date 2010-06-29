@@ -7,6 +7,7 @@ from django import forms
 
 from djangosms.core.models import Incoming
 from djangosms.core.models import Connection
+from djangosms.core.models import Route
 from djangosms.core.transports import Message
 from djangosms.reporter.models import Reporter
 
@@ -48,18 +49,26 @@ def index(req):
     if req.method == 'POST':
         send_form = SendForm(req.POST)
         if send_form.is_valid():
-            if 'guest' in repr(req.POST.keys()).lower():
-                connections = Connection.objects.filter(
-                    uri__startswith="%s://guest" % transport.name)
-                username = "guest%d" % (len(connections) + 1)
-                reporter = Reporter(name="Guest")
-                reporter.save()
-                reporter.connections.create(uri="%s://%s" % (transport.name, username))
-            else:
+            if 'send' in repr(req.POST.keys()).lower():
                 username = req.user.username
-
-            text = send_form.cleaned_data['text']
-            transport.incoming(username, text)
+                text = send_form.cleaned_data['text']
+                transport.incoming(username, text)
+                
+                req.notifications.add(
+                    u"Your message, '%s', was sent to the system." % text)
+            elif 'reply' in repr(req.POST.keys()).lower():
+                messages = req.POST.getlist('messages')
+                messages = Incoming.objects.filter(pk__in=messages)
+                text = send_form.cleaned_data['text']
+                for message in messages:
+                    request = message.requests.create(
+                        text='',message=message,route=Route.objects.get(slug='web'),
+                        erroneous=False)
+                    request.reply(text)
+                
+                req.notifications.add(
+                    u"Message sent to %d recipient(s)." % len(messages))
+    
     else:
         send_form = SendForm()
 

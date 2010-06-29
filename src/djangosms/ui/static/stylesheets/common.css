@@ -51,6 +51,17 @@ td.message-text li.response {
   margin-left: 1.3em;
 }
 
+.route-web-response {
+  display:none;
+}
+
+td.message-text li.web-response {
+  color: blue;
+  margin-top: 0.2em;
+  list-style-type: square;
+  margin-left: 1.3em;
+}
+
 td.message-text span.form-kind {
   color: #666;
 }
