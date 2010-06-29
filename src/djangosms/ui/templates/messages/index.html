@@ -54,13 +54,11 @@
   </thead>
   
   <tbody>
-	{% for message in paginator.object_list %}
+	{% for message, reporter in entries %}
 	<tr>
 	  <td>{{ message.time|date:"d-M-Y H:i:s" }}</td>
 	  <td>
-        {% if message.connection.reporter %}
-        {{ message.connection.reporter|title }}
-        {% endif %}
+        {{ reporter|title }}
         <pre>{{ message.connection }}</pre>
       </td>
 	  <td class="message-text">

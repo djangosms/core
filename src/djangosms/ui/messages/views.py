@@ -65,9 +65,19 @@ def index(req):
 
     paginator = Paginator(query, 25).page(page)
 
+    entries = []
+    for message in paginator.object_list:
+        user = message.user
+        if user is not None:
+            reporter = Reporter.objects.get(pk=user.pk)
+        else:
+            reporter = None
+        entries.append((message, reporter))
+
     return render_to_response("messages/index.html", {
         "send_form": send_form,
         "paginator": paginator,
+        "entries": entries,
         "columns": columns,
         "sort_column": sort_column,
         "sort_descending": sort_descending,
