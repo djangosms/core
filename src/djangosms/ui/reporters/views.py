@@ -32,6 +32,7 @@ def index(req):
         ("group", "Location", None),
         ("role", "Role", Max("roles__name")),
         ("activity", "Last activity", Max("connections__messages__time")),
+        (None, "Message", None),
         )
 
     sort_column, sort_descending = _get_sort_info(

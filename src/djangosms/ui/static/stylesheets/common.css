@@ -28,6 +28,10 @@ table.sortable thead th.sorted a {
 table.sortable thead th.ascending  a { background-image: url("../icons/silk/arrow_down.png"); }
 table.sortable thead th.descending a { background-image: url("../icons/silk/arrow_up.png"); }
 
+table tr.select-all {
+  background: #f9f9f9;
+}
+
 td.message-text tt.message-text {
   font-weight: bold;
 }

@@ -48,18 +48,20 @@
 	    </a>
 	  </th>
 	  {% else %}
-	  <th>
+      <th>
+        {% if not column %}
+        {{ display }}
+        {% else %}
         <a href="?q={{ search_string }}&sort_column={{ column }}"
-           title="Sort by {{ display }}">{{ display }}</a></th>
+           title="Sort by {{ display }}">{{ display }}</a>
+        {% endif %}
+      </th>
 	  {% endifequal %}
 	  {% endfor%}
-      <th>Messages</th>
-      <th>Erroneous</th>
     </thead>
-
     <tbody>
-      <tr>
-        <td>
+      <tr class="select-all">
+        <td colspan="{{ columns|length }}">
           <input type="checkbox" name="all" id="checkAllReporters"/>
           <script language="JavaScript">
           $('#checkAllReporters').click(
@@ -74,20 +76,18 @@
       			} 
    			}
 		  ); 
-		  </script>       
-        </td>
-        <td colspan="{{ columns|length }}">
-          Select all 
-          <span id="totalSelected" style="display:none" class="help">
-          	({{count}} total items selected)
+		  </script>
+          Select all
+          <span id="totalSelected" style="display: none" class="help">
+            ({{count}} total items selected)
           </span>
         </td>
       </tr>
 	  {% for reporter, incoming, erroneous in entries %}
 	  <tr>
         <td style="white-space: nowrap">
-	        <label for="reporter">{{ reporter.pk }}</label>
             <input name="reporter" type="checkbox" value="{{ reporter.pk }}" />
+	        <label for="reporter">{{ reporter.pk }}</label>
         </td>
         <td>
           {{ reporter|title }}
