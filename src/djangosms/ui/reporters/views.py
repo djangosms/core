@@ -45,10 +45,8 @@ def index(req):
         pks = []
         connections = Connection.objects.filter(uri__icontains=search_string).all()
         for connection in connections:
-            try:
+            if connection.user is not None:
                 pks.append(connection.user.pk)
-            except User.DoesNotExist:
-                pass
 
         query = Reporter.objects.filter(
             Q(name__icontains=search_string) |
