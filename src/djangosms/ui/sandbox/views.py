@@ -38,13 +38,13 @@ post_graduate = Signal(providing_args=["reporter"])
 @login_required
 def index(req):
     columns = (
-        ("id", "#", None),
-        ("name", "Name", None),
-        ("group", "Location", None),
-        ("role", "Role", Max("roles__name")),
-        ("activity", "Last activity", Max("connections__messages__time")),
-        (None, "Messages", None),
-        (None, "Erroneous", None),
+        ("id", "#", "id", None),
+        ("name", "Name", "name", None),
+        ("group", "Location", "group__name", None),
+        ("role", "Role", "roles__name", None),
+        ("activity", "Last activity", "activity", Max("connections__messages__time")),
+        (None, "Messages", None, None),
+        (None, "Erroneous", None, None),
         )
 
     sort_column, sort_descending = _get_sort_info(
@@ -119,14 +119,13 @@ def index(req):
         # redirect to GET action
         return HttpResponseRedirect(req.path)
 
-    for name, label, aggregate in columns:
+    for name, label, sorting, aggregate in columns:
         if aggregate:
             query = query.annotate(**{name: aggregate})
 
         if name == sort_column:
             sort_desc_string = "-" if sort_descending else ""
-
-    query = query.order_by("%s%s" % (sort_desc_string, sort_column)).all()
+            query = query.order_by("%s%s" % (sort_desc_string, sorting))
 
     try:
         page = int(req.GET.get('page', '1'))
