@@ -13,7 +13,8 @@ class Command(BaseCommand):
     def handle(self, path, **options):
         body = open(path).read()
         for index, entry in enumerate(yaml.load(body)):
-            time = iso8601.parse_date(entry['time'])
+            # parse time into naive datetime-object (UTC-local)
+            time = iso8601.parse_date(entry['time']).replace(tzinfo=None)
             name, ident = entry['uri'].split('://')
 
             try:

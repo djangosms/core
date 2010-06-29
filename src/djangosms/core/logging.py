@@ -14,4 +14,4 @@ def format_incoming(message):
             print >> out, "    %d/%d %s" % (j+1, len(responses), response.uri)
             print >> out, "    <-- %s" % (response.text or "(empty)")
 
-    return out.getvalue()
+    return out.getvalue().encode('utf-8')
