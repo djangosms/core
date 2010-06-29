@@ -58,7 +58,9 @@
 	<tr>
 	  <td>{{ message.time|date:"d-M-Y H:i:s" }}</td>
 	  <td>
+        {% if reporter %}
         {{ reporter|title }}
+        {% endif %}
         <pre>{{ message.connection }}</pre>
       </td>
 	  <td class="message-text">
