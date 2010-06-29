@@ -76,9 +76,11 @@
             		{% else %}
 		            	<tt class="message-text">{{ request.text }}</tt>
             		{% endif %}
-            		<span class="request-kind route-{{ request.route|slugify }}">
-              			({{ request.route }})
-            		</span>
+            		{% if request.route %}
+            			<span class="request-kind route-{{ request.route|slugify }}">
+	              			({{ request.route }})
+            			</span>
+            		{% endif %}
             		<ul>
               		{% for response in request.responses.all %}
               			<li class="response {% if response.is_reply %}reply{% endif %} {% if request.route.slug == 'web' %}web-response{% endif %}">
