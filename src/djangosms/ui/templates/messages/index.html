@@ -68,7 +68,16 @@
         <ul>
           {% for request in message.requests.all %}
           <li class="{% if request.erroneous %} erroneous{% endif %}">
-            <tt class="message-text">{{ request.text }}</tt>
+            {% if request.responses.count %}
+            	{% if request.text %}
+					<tt class="message-text">{{ request.text }}</tt>
+           		{% else %}
+	            	<tt class="message-text">{{ message.text }}</tt>
+            	{% endif %}
+            {% else %}
+            	<tt class="message-text">{{ request.text }}</tt>
+            {% endif %}
+
             {% if request.route %}
             <span class="request-kind form-{{ request.route }}">
               ({{ request.route }})
