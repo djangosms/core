@@ -1,12 +1,10 @@
-table.sortable thead th {
-  padding: 0;
+table.sortable th {
+  padding: 0.5em;
 }
 
-table.sortable thead th a {
+table.sortable th a {
   display: block;
-  padding: 0.5em;
   color: #888;
-  outline: 0;
   border-right: 1px solid #ddd;
   border-left: 1px solid #fff;
 }

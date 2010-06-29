@@ -1,0 +1,121 @@
+{% extends "base_template.html" %}
+
+{% block title %}Sandbox{% endblock %}
+
+{% block page_stylesheets %}
+<link type="text/css" rel="stylesheet"
+      href="{% url djangosms.ui.base.views.static %}/stylesheets/reporters.css" />
+{% endblock %}
+
+{% block content %}
+<h1>
+  <a href="{% url djangosms.ui.sandbox.views.index %}">Sandbox</a>
+  {% if search_string %}
+  	/ <a href="">Search for
+    	<span class="highlight">{{ search_string }}</span></a>
+    	({{ count }} results)
+  {% endif %}
+</h1>
+
+<p class="help">
+  Allows the graduation of reporters to move out of the sandbox, usually after
+  their initial training or getting acquainted with the system.
+</p>
+
+<form class="inline" method="get" id="search">
+  <p>
+    <label for="q">Query:</label>
+    <input name="q" type="text" value="{{ search_string }}" />
+    <input type="submit" value="Search" />
+  </p>
+</form>
+
+<form method="post" id="graduate">
+
+  <p class="inline">
+    <label for="text">Text:</label>
+    <input size="40" name="text" type="text" value="{{ text }}" />
+    <input type="submit" value="Graduate selected and send notification" />
+  </p>
+
+  <table id="reporters" class="sortable">
+    <thead>
+	  {% for column, display, aggregate, filtering in columns %}
+	  {% ifequal column sort_column %}
+	  <th class="sorted {% if sort_descending %}descending{% else %}ascending{% endif %}">
+	    <a href="?q={{ search_string }}&sort_descending={% if sort_descending %}false{% else %}true{% endif %}&sort_column={{ column }}" title="Sort by {{ display }}{% if sort_descending %} (asc){% endif %}">
+		  {{ display }}
+	    </a>
+	  </th>
+	  {% else %}
+	  <th>
+        <a href="?q={{ search_string }}&sort_column={{ column }}"
+           title="Sort by {{ display }}">{{ display }}</a></th>
+	  {% endifequal %}
+	  {% endfor%}
+      <th>Messages</th>
+      <th>Erroneous</th>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td>
+          <input type="checkbox" name="all" id="checkAllReporters"/>
+          <script language="JavaScript">
+          $('#checkAllReporters').click(
+          function()
+   			{
+   				var state = $('#checkAllReporters').is(':checked');
+      			$("INPUT[type='checkbox'][name='reporter']").attr('checked', state);
+      			if (state) {
+      				$('#totalSelected').show();
+      			} else {
+      				$('#totalSelected').hide();
+      			} 
+   			}
+		  ); 
+		  </script>       
+        </td>
+        <td colspan="{{ columns|length }}">
+          Select all 
+          <span id="totalSelected" style="display:none" class="help">
+          	({{count}} total items selected)
+          </span>
+        </td>
+      </tr>
+	  {% for reporter, incoming, erroneous in entries %}
+	  <tr>
+        <td style="white-space: nowrap">
+	        <label for="reporter">{{ reporter.pk }}</label>
+            <input name="reporter" type="checkbox" value="{{ reporter.pk }}" />
+        </td>
+        <td>
+          {{ reporter|title }}
+          {% for connection in reporter.connections.all %}
+          <pre>{{ connection }}</pre>
+          {% endfor %}
+        </td>
+        <td>{{ reporter.group.name }}</td>
+        <td style="white-space: nowrap">
+        	{% for role in reporter.roles.all %}
+        		{{ role.name }}<br/>
+            {% endfor %}
+        </td>
+        <td>
+          <span style="white-space:nowrap">{{ reporter.activity|date:"d-M-Y H:i" }}</span>
+        </td>
+        <td>
+          {{ incoming }}
+        </td>
+        <td>
+          {{ erroneous }}
+        </td>
+	  </tr>
+	  {% endfor %}
+    </tbody>
+  </table>
+</form>
+{% load pagination %}
+{% pagination paginator req %}
+
+{% endblock %}
