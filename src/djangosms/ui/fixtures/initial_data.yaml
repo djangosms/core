@@ -1,0 +1,6 @@
+- model: core.route
+  pk: web
+  fields:
+    name: Web response
+
+

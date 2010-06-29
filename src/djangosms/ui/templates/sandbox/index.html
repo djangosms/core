@@ -1,6 +1,6 @@
 {% extends "base_template.html" %}
 
-{% block title %}Reporters{% endblock %}
+{% block title %}Sandbox{% endblock %}
 
 {% block page_stylesheets %}
 <link type="text/css" rel="stylesheet"
@@ -9,7 +9,7 @@
 
 {% block content %}
 <h1>
-  <a href="{% url djangosms.ui.reporters.views.index %}">Reporters</a>
+  <a href="{% url djangosms.ui.sandbox.views.index %}">Sandbox</a>
   {% if search_string %}
   	/ <a href="">Search for
     	<span class="highlight">{{ search_string }}</span></a>
@@ -18,7 +18,8 @@
 </h1>
 
 <p class="help">
-  Displays reporters registered with the system.
+  Allows the graduation of reporters to move out of the sandbox, usually after
+  their initial training or getting acquainted with the system.
 </p>
 
 <form class="inline" method="get" id="search">
@@ -29,25 +30,25 @@
   </p>
 </form>
 
-<form method="post" id="send">
-    {% csrf_token %}
+<form method="post" id="graduate">
+
   <p class="inline">
     <label for="text">Text:</label>
     <input size="40" name="text" type="text" value="{{ text }}" />
-    <input type="submit" value="Send to selected" />
+    <input type="submit" value="Graduate selected and send notification" />
   </p>
 
   <table id="reporters" class="sortable">
     <thead>
-	  {% for column, display, aggregate in columns %}
-	  {% if column == sort_column %}
+	  {% for column, display, aggregate, filtering in columns %}
+	  {% ifequal column sort_column %}
 	  <th class="sorted {% if sort_descending %}descending{% else %}ascending{% endif %}">
 	    <a href="?q={{ search_string }}&sort_descending={% if sort_descending %}false{% else %}true{% endif %}&sort_column={{ column }}" title="Sort by {{ display }}{% if sort_descending %} (asc){% endif %}">
 		  {{ display }}
 	    </a>
 	  </th>
 	  {% else %}
-	  <th>
+      <th>
         {% if not column %}
         {{ display }}
         {% else %}
@@ -55,10 +56,9 @@
            title="Sort by {{ display }}">{{ display }}</a>
         {% endif %}
       </th>
-      {% endif %}
-      {% endfor%}
+	  {% endifequal %}
+	  {% endfor%}
     </thead>
-
     <tbody>
       <tr class="select-all">
         <td colspan="{{ columns|length }}">
@@ -83,7 +83,7 @@
           </span>
         </td>
       </tr>
-	  {% for reporter, message, is_outgoing in entries %}
+	  {% for reporter, incoming, erroneous in entries %}
 	  <tr>
         <td style="white-space: nowrap">
             <input name="reporter" type="checkbox" value="{{ reporter.pk }}" />
@@ -101,20 +101,14 @@
         		{{ role.name }}<br/>
             {% endfor %}
         </td>
-	    <td>
-	    	<span style="white-space:nowrap">{{ message.time|date:"d-M-Y H:i" }}</span>
-	    </td>
-	    <td class="message-text">
-	    	{% if message %}
-	    		<tt class="message-text">
-		  		{% if is_outgoing %}	    
-          			&gt;&gt;&gt; 	    
-	      		{% else %}
-	      			&lt;&lt;&lt; 
-	      		{% endif %}
-	      		{{ message.text }}
-	      		</tt>
-	        {% endif %}
+        <td>
+          <span style="white-space:nowrap">{{ reporter.activity|date:"d-M-Y H:i" }}</span>
+        </td>
+        <td>
+          {{ incoming }}
+        </td>
+        <td>
+          {{ erroneous }}
         </td>
 	  </tr>
 	  {% endfor %}

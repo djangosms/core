@@ -1,21 +1,29 @@
+from urllib import urlencode
+from itertools import chain
+
 from django.db.models import Q
 from django.db.models.aggregates import Max
+from django.db.models.aggregates import Sum
+from django.db.models.aggregates import Count
+from django.dispatch import Signal
 from django.core.paginator import Paginator
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
+from django.template.defaultfilters import title
 from django.http import HttpResponseRedirect
 from django import forms
 
 from djangosms.core.models import Connection
 from djangosms.core.models import Message
+from djangosms.core.models import Incoming
 from djangosms.core.models import Outgoing
 from djangosms.core.models import Request
 from djangosms.core.models import User
 
 from djangosms.reporter.models import Reporter
 
-class SendForm(forms.Form):
+class SandboxForm(forms.Form):
     text = forms.CharField(
         label="Text",
         max_length=255,
@@ -23,6 +31,9 @@ class SendForm(forms.Form):
             attrs={'size':'40'}),
         required=False,
         )
+
+pre_graduate = Signal(providing_args=["reporter"])
+post_graduate = Signal(providing_args=["reporter"])
 
 @login_required
 def index(req):
@@ -32,7 +43,8 @@ def index(req):
         ("group", "Location", None),
         ("role", "Role", Max("roles__name")),
         ("activity", "Last activity", Max("connections__messages__time")),
-        (None, "Message", None),
+        (None, "Messages", None),
+        (None, "Erroneous", None),
         )
 
     sort_column, sort_descending = _get_sort_info(
@@ -46,8 +58,10 @@ def index(req):
         pks = []
         connections = Connection.objects.filter(uri__icontains=search_string).all()
         for connection in connections:
-            if connection.user is not None:
-                pks.append(connection.user.pk)
+            try:
+                pks.append(connection.reporter.pk)
+            except Reporter.DoesNotExist:
+                pass
 
         query = Reporter.objects.filter(
             Q(name__icontains=search_string) |
@@ -55,78 +69,90 @@ def index(req):
             Q(roles__name__icontains=search_string)
         )
 
-    form = SendForm(req.POST)
+    form = SandboxForm(req.POST)
     if req.method == 'POST' and form.is_valid():
+        pks = req.POST.getlist('reporter')
         text = form.cleaned_data.get('text') or None
-        reporters = req.POST.getlist('reporter')
 
-        if text is None:
-            req.notifications.add(u"No text was submitted; ignored.")
-        else:
-            if not req.POST.get('all'):
-                query = Reporter.objects.filter(pk__in=reporters)
+        if not req.POST.get('all'):
+            query = Reporter.objects.filter(pk__in=pks)
 
+        graduated = []
+
+        if text:
             request = Request(text=text)
             request.save()
+        else:
+            request = None
 
-            for reporter in query.all():
+        for reporter in query.all():
+            pre_graduate.send(sender=req.user, reporter=reporter)
+            try:
+                pass
+            finally:
+                post_graduate.send(sender=req.user, reporter=reporter)
+
+            if request is not None:
                 uri = reporter.most_recent_connection.uri
                 message = Outgoing(text=text, uri=uri, in_response_to=request)
                 message.save()
 
-            req.notifications.add(
-                u"Message sent to %d recipient(s)." % len(reporters))
+            graduated.append(reporter)
+
+        names = [title(reporter.name) for reporter in graduated]
+        separator = [", "] * len(names)
+        if len(names) > 1:
+            separator[-2] = " and "
+        separator[-1] = ""
+
+        if request is not None:
+            notification_sent_message = " Notification sent: \"%s\"." % text
+        else:
+            notification_sent_message = ""
+
+        req.notifications.add(u"%d reporter(s) graduated: %s.%s" % (
+            len(graduated),
+            "".join(chain(*zip(names, separator))),
+            notification_sent_message,
+            ))
 
         # redirect to GET action
         return HttpResponseRedirect(req.path)
 
-    for name, title, aggregate in columns:
-        if name != sort_column:
-            continue
-
+    for name, label, aggregate in columns:
         if aggregate:
             query = query.annotate(**{name: aggregate})
 
-        sort_desc_string = "-" if sort_descending else ""
-        query = query.order_by("%s%s" % (sort_desc_string, name)).all()
+        if name == sort_column:
+            sort_desc_string = "-" if sort_descending else ""
 
-        break
-
-    entries = []
+    query = query.order_by("%s%s" % (sort_desc_string, sort_column)).all()
 
     try:
         page = int(req.GET.get('page', '1'))
     except ValueError:
         page = 1
 
-    paginator = Paginator(query, 25)
-    count = paginator.count
-    paginator = paginator.page(page)
+    paginator = Paginator(query, 25).page(page)
 
+    entries = []
     for reporter in paginator.object_list:
-        try:
-            message = Message.objects.filter(
-                connection__in=reporter.connections.all()).latest()
+        messages = Incoming.objects.filter(
+            connection__user__pk=reporter.pk)
+        incoming = messages.count()
+        erroneous = Request.objects.filter(
+            erroneous=True, message__in=messages).count()
+        entries.append((reporter, incoming, erroneous))
 
-        except Message.DoesNotExist:
-            message = None
-            is_outgoing_message = 0
-
-        else:
-            is_outgoing_message = Outgoing.objects.filter(
-                    pk=message.pk).count()
-
-        entries.append((reporter, message, is_outgoing_message))
-
-    return render_to_response("reporters/index.html", {
-        "entries": entries,
+    return render_to_response("sandbox/index.html", {
         "paginator": paginator,
+        "entries": entries,
         "columns": columns,
+        "count": query.count(),
         "sort_column": sort_column,
         "sort_descending": sort_descending,
         "search_string": search_string,
         "req": req,
-        "count" : count
         }, RequestContext(req))
 
 

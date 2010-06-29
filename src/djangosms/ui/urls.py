@@ -12,6 +12,7 @@ from .base import urls as base_urls
 from .messages import urls as message_urls
 from .stats import urls as stat_urls
 from .reporters import urls as reporter_urls
+from .sandbox import urls as sandbox_urls
 
 urlpatterns = patterns(
     '',
@@ -22,4 +23,5 @@ urlpatterns = patterns(
     base_urls.urlpatterns + \
     message_urls.urlpatterns + \
     stat_urls.urlpatterns + \
-    reporter_urls.urlpatterns
+    reporter_urls.urlpatterns + \
+    sandbox_urls.urlpatterns
