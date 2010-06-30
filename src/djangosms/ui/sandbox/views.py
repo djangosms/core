@@ -52,6 +52,8 @@ def index(req):
     else:
         query = query_reporters(search_string)
 
+    query = query.filter(active=True)
+
     form = SandboxForm(req.POST)
     if req.method == 'POST' and form.is_valid():
         pks = req.POST.getlist('reporter')
@@ -74,6 +76,9 @@ def index(req):
             except GraduateFailed:
                 continue
 
+            reporter.active = False
+            reporter.save()
+
             if request is not None:
                 uri = reporter.most_recent_connection.uri
                 message = Outgoing(text=text, uri=uri, in_response_to=request)
@@ -87,12 +92,12 @@ def index(req):
             if len(names) > 1:
                 separator[-2] = " and "
             separator[-1] = ""
-    
+
             if request is not None:
                 notification_sent_message = " Notification sent: \"%s\"." % text
             else:
                 notification_sent_message = ""
-    
+
             req.notifications.add(u"%d reporter(s) graduated: %s.%s" % (
                 len(graduated),
                 "".join(chain(*zip(names, separator))),

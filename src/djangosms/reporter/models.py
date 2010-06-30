@@ -74,6 +74,7 @@ class Reporter(User):
     name = models.CharField(max_length=50)
     group = models.ForeignKey(Group, null=True)
     roles = models.ManyToManyField(Role)
+    active = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.name

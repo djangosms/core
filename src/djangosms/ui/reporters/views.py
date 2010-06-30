@@ -43,6 +43,8 @@ def index(req):
     else:
         query = query_reporters(search_string)
 
+    query = query.filter(active=True)
+
     form = SendForm(req.POST)
     if req.method == 'POST' and form.is_valid():
         text = form.cleaned_data.get('text') or None
