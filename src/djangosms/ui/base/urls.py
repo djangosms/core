@@ -6,9 +6,12 @@ from django.conf.urls.defaults import *
 from .views import dashboard
 from .views import static
 
+from djangosms.core.views import loadmsg
+
 urlpatterns = patterns(
     '',
     url(r'^$', dashboard),
     url(r'^static$', static),
+    url(r'^loadmsg$', loadmsg),
 )
 

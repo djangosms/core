@@ -66,7 +66,7 @@ class Message(Transport):
     :meth:`incoming` method for processing.
     """
 
-    def incoming(self, ident, text, time=None):
+    def incoming(self, ident, text, time=None, suppress_responses=False):
         """Route incoming text message.
 
         When the system runs in debug mode (with the ``DEBUG`` setting
@@ -76,7 +76,7 @@ class Message(Transport):
         """
 
         time = time or datetime.now()
-        message = Incoming(text=text, time=time)
+        message = Incoming(text=text, time=time, suppress_responses=suppress_responses)
 
         # make sure we have a connection record for this sender
         message.uri = "%s://%s" % (self.name, ident)
@@ -201,7 +201,8 @@ class GSM(Message): # pragma: NOCOVER
 
             # outgoing
             messages = Outgoing.objects.filter(
-                time=None, connection__uri__startswith="%s://" % self.name)
+                time=None, connection__uri__startswith="%s://" % self.name,
+                in_response_to__message__suppress_responses=False)
             if len(messages) > 0:
                 self.logger.debug("Sending %d message(s)..." % len(messages))
 
@@ -221,6 +222,7 @@ class GSM(Message): # pragma: NOCOVER
                         continue
 
                     # send text
+                    
                     self.modem.conn.write(message.text + "\x1A")
                     self.modem.conn.flush()
 
@@ -431,6 +433,14 @@ class HTTP(Message):
             transport = reference()
             if transport is not None:
                 if created is True and instance.connection.transport == transport.name:
+                    try:
+                        suppress = instance.in_response_to.message.suppress_responses
+                    except:
+                        pass
+                    else:
+                        if suppress:
+                            return
+                    
                     transport.send(instance)
 
         signals.post_save.connect(on_outgoing, sender=Outgoing, weak=False)

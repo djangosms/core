@@ -32,8 +32,10 @@ class SandboxForm(forms.Form):
         required=False,
         )
 
-pre_graduate = Signal(providing_args=["reporter"])
-post_graduate = Signal(providing_args=["reporter"])
+graduate = Signal(providing_args=["reporter"])
+
+class GraduateFailed(Exception):
+    pass
 
 @login_required
 def index(req):
@@ -86,11 +88,10 @@ def index(req):
             request = None
 
         for reporter in query.all():
-            pre_graduate.send(sender=req.user, reporter=reporter)
             try:
-                pass
-            finally:
-                post_graduate.send(sender=req.user, reporter=reporter)
+                graduate.send(sender=req.user, reporter=reporter)
+            except GraduateFailed:
+                continue
 
             if request is not None:
                 uri = reporter.most_recent_connection.uri
@@ -99,22 +100,23 @@ def index(req):
 
             graduated.append(reporter)
 
-        names = [title(reporter.name) for reporter in graduated]
-        separator = [", "] * len(names)
-        if len(names) > 1:
-            separator[-2] = " and "
-        separator[-1] = ""
-
-        if request is not None:
-            notification_sent_message = " Notification sent: \"%s\"." % text
-        else:
-            notification_sent_message = ""
-
-        req.notifications.add(u"%d reporter(s) graduated: %s.%s" % (
-            len(graduated),
-            "".join(chain(*zip(names, separator))),
-            notification_sent_message,
-            ))
+        if graduated:
+            names = [title(reporter.name) for reporter in graduated]
+            separator = [", "] * len(names)
+            if len(names) > 1:
+                separator[-2] = " and "
+            separator[-1] = ""
+    
+            if request is not None:
+                notification_sent_message = " Notification sent: \"%s\"." % text
+            else:
+                notification_sent_message = ""
+    
+            req.notifications.add(u"%d reporter(s) graduated: %s.%s" % (
+                len(graduated),
+                "".join(chain(*zip(names, separator))),
+                notification_sent_message,
+                ))
 
         # redirect to GET action
         return HttpResponseRedirect(req.path)

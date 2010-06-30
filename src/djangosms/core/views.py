@@ -1,5 +1,11 @@
+from datetime import datetime
+
 from django.http import HttpResponse as Response
 from .transports import http_event
+
+from django.contrib.auth import authenticate
+from djangosms.core.testing import handle
+from djangosms.core.transports import Message
 
 def incoming(request, name="http+sms"):
     """Incoming messages view.
@@ -21,3 +27,17 @@ def incoming(request, name="http+sms"):
     response = Response(u"")
     http_event.send(sender=None, name=name, request=request, response=response)
     return response
+
+def loadmsg(request):
+    user = request.POST['username']
+    passwd = request.POST['password']
+    user = authenticate(username=user, password=passwd)
+    if user is not None:
+        text = request.POST['text']
+        sender = request.POST['from']
+        timestamp = request.POST['timestamp']
+        timestamp = datetime.fromtimestamp(
+                float(timestamp))
+        transport = Message('http+sms')
+        transport.incoming(sender, text, timestamp, True)
+    return Response()
