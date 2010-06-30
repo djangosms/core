@@ -71,16 +71,12 @@ def index(req):
         return HttpResponseRedirect(req.path)
 
     for name, title, sorting, aggregate in columns:
-        if name != sort_column:
-            continue
-
         if aggregate:
             query = query.annotate(**{name: aggregate})
 
-        sort_desc_string = "-" if sort_descending else ""
-        query = query.order_by("%s%s" % (sort_desc_string, sorting)).all()
-
-        break
+        if name == sort_column:
+            sort_desc_string = "-" if sort_descending else ""
+            query = query.order_by("%s%s" % (sort_desc_string, sorting)).all()
 
     entries = []
 
