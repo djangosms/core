@@ -24,10 +24,13 @@ class SendForm(forms.Form):
         )
 
 def whitelist(req):
-    response = '';
-    for reporter in Reporter.objects.filter(active=True):
-        for connection in reporter.connections.all():
-            response += connection.ident + "\n"
+    response = ''
+    if (req.META['SERVER_NAME'] == 'localhost' or 
+        req.META['SERVER_NAME'] == '127.0.0.1' or 
+        req.META['SERVER_NAME'] == '0.0.0.0'):
+        for reporter in Reporter.objects.filter(active=True):
+            for connection in reporter.connections.all():
+                response += connection.ident + "\n"
     return Response(response,mimetype="text/plain")
 
 @login_required
