@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
+from django.http import HttpResponse as Response
 from django import forms
 
 from djangosms.core.models import Message
@@ -21,6 +22,16 @@ class SendForm(forms.Form):
             attrs={'size':'40'}),
         required=False,
         )
+
+def whitelist(req):
+    response = ''
+    if (req.META['SERVER_NAME'] == 'localhost' or 
+        req.META['SERVER_NAME'] == '127.0.0.1' or 
+        req.META['SERVER_NAME'] == '0.0.0.0'):
+        for reporter in Reporter.objects.filter(active=True):
+            for connection in reporter.connections.all():
+                response += connection.ident + "\n"
+    return Response(response,mimetype="text/plain")
 
 @login_required
 def index(req):

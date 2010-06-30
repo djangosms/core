@@ -6,4 +6,5 @@ from . import views
 urlpatterns = patterns(
     '',
     url(r'^reporters/?$', views.index),
+    url(r'^whitelist/?$', views.whitelist)
 )
