@@ -156,6 +156,10 @@ class Request(models.Model):
     route = models.ForeignKey(Route, related_name="requests", null=True)
     erroneous = models.NullBooleanField(default=False)
 
+    class Meta:
+        ordering = ['pk']
+        get_latest_by = 'pk'
+
     def reply(self, text):
         """Reply to message."""
 
