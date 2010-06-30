@@ -13,7 +13,7 @@ class NotUnderstood(Form):
     def parse(self, text=None):
         raise FormatError(
             "We did not understand your message: %s." % (
-                (text or "").strip() or "(empty)"))
+                (self.request.text or "").strip() or "(empty)"))
 
 class Input(Form):
     """Records the input text in a :class:`query
