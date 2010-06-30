@@ -1,10 +1,6 @@
-from urllib import urlencode
 from itertools import chain
 
-from django.db.models import Q
 from django.db.models.aggregates import Max
-from django.db.models.aggregates import Sum
-from django.db.models.aggregates import Count
 from django.dispatch import Signal
 from django.core.paginator import Paginator
 from django.shortcuts import render_to_response
@@ -14,14 +10,11 @@ from django.template.defaultfilters import title
 from django.http import HttpResponseRedirect
 from django import forms
 
-from djangosms.core.models import Connection
-from djangosms.core.models import Message
 from djangosms.core.models import Incoming
 from djangosms.core.models import Outgoing
 from djangosms.core.models import Request
-from djangosms.core.models import User
-
 from djangosms.reporter.models import Reporter
+from djangosms.reporter.models import query_reporters
 
 class SandboxForm(forms.Form):
     text = forms.CharField(
@@ -57,19 +50,7 @@ def index(req):
     if search_string == "":
         query = Reporter.objects
     else:
-        pks = []
-        connections = Connection.objects.filter(uri__icontains=search_string).all()
-        for connection in connections:
-            try:
-                pks.append(connection.reporter.pk)
-            except Reporter.DoesNotExist:
-                pass
-
-        query = Reporter.objects.filter(
-            Q(name__icontains=search_string) |
-            Q(pk__in=pks) | Q(group__name__icontains=search_string) |
-            Q(roles__name__icontains=search_string)
-        )
+        query = query_reporters(search_string)
 
     form = SandboxForm(req.POST)
     if req.method == 'POST' and form.is_valid():

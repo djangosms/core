@@ -12,7 +12,7 @@
   <a href="{% url djangosms.ui.reporters.views.index %}">Reporters</a>
   {% if search_string %}
   	/ <a href="">Search for
-    	<span class="highlight">{{ search_string }}</span></a>
+    	<span class="highlight">&quot;{{ search_string|truncatewords:3 }}&quot;</span></a>
     	({{ count }} results)
   {% endif %}
 </h1>
@@ -123,5 +123,9 @@
 </form>
 {% load pagination %}
 {% pagination paginator req %}
+
+<p class="discreet">
+  Note that you can search for multiple terms using "OR".
+</p>
 
 {% endblock %}

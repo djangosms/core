@@ -86,6 +86,10 @@ table {
   margin-bottom: 1em;
 }
 
+.discreet {
+  color: #aaa;
+}
+
 p.form-help {
   color: #389ece;
   font-weight: bold;
