@@ -16,8 +16,8 @@ includes a facility to require registration::
       (r'^', 'djangosms.apps.registration.forms.MustRegister'),
   )
 
-Forms
-~~~~~
+API
+~~~
 
 .. automodule:: djangosms.apps.registration.forms
    :members: Register, MustRegister

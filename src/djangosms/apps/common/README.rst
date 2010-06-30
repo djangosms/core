@@ -18,14 +18,11 @@ This application includes common utility forms::
       (r'^(?P<text>.*)$', 'djangosms.apps.common.forms.Input'),
   )
 
-Forms
-~~~~~
+API
+~~~
 
 .. automodule:: djangosms.apps.common.forms
    :members: NotUnderstood, Input
-
-Models
-~~~~~~
 
 .. automodule:: djangosms.apps.common.models
    :members: Query
