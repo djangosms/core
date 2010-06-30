@@ -22,7 +22,7 @@ Forms
 ~~~~~
 
 .. automodule:: djangosms.apps.common.forms
-   :members: MustRegister, NotUnderstood, Input
+   :members: NotUnderstood, Input
 
 Models
 ~~~~~~
