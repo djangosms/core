@@ -56,11 +56,5 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.csrf",
     )
 
-TEMPLATE_DIRS = (
-    "../django-treebeard/treebeard/templates",
-    "../django/django/contrib/admin/templates",
-    "../django/django/contrib/auth/templates",
-    )
-
 LOGIN_URL = "/login"
 LOGIN_REDIRECT_URL = "/"
