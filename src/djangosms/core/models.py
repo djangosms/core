@@ -112,6 +112,7 @@ class Message(models.Model):
 class Incoming(Message):
     """An incoming message."""
 
+    suppress_responses = models.BooleanField(default=False)
     parts = ()
 
 class Outgoing(Message):

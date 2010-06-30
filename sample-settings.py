@@ -44,6 +44,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_notify.middleware.NotificationsMiddleware',
     )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -54,6 +55,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
     "django.core.context_processors.csrf",
+    "django_notify.context_processors.notifications",
     )
 
 LOGIN_URL = "/login"
