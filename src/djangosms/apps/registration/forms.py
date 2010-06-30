@@ -4,7 +4,6 @@ import string
 from picoparse import any_token
 from picoparse import choice
 from picoparse import commit
-from picoparse import fail
 from picoparse import many1
 from picoparse import one_of
 from picoparse import optional
@@ -13,16 +12,25 @@ from picoparse import peek
 from picoparse import remaining
 from picoparse import tri
 from picoparse.text import whitespace
-from picoparse.text import whitespace1
 
 from djangosms.core import pico
 from djangosms.core.models import Connection
 from djangosms.core.router import FormatError
+from djangosms.core.router import StopError
 from djangosms.core.router import Form
 from djangosms.stats.models import Report
 from djangosms.reporter.models import Reporter
 
 from django.template.defaultfilters import title
+
+class MustRegister(Form):
+    """Raises an error if user is not a reporter."""
+
+    def handle(self):
+        if self.user is None or Reporter.objects.filter(
+            pk=self.user.pk).count() == 0:
+            raise StopError(
+                u"Must be a reporter. Please register first with your name.")
 
 class Register(Form):
     """Register with the system.

@@ -7,14 +7,6 @@ from djangosms.reporter.models import Reporter
 
 from .models import Query
 
-class MustRegister(Form):
-    """Raises an error if user is not a reporter."""
-
-    def parse(self):
-        if self.user is None or Reporter.objects.filter(
-            pk=self.user.pk).count() == 0:
-            raise FormatError(u"Must be a reporter.")
-
 class NotUnderstood(Form):
     """Raises an error that the message was not understood."""
 

@@ -3,31 +3,46 @@ from djangosms.core.testing import FormTestCase
 
 class ParserTest(TestCase):
     @staticmethod
-    def _parse(text):
+    def _register(text):
         from .forms import Register
         return Register().parse(text=text)
 
     def test_empty(self):
-        self.assertEquals(self._parse(""), {})
+        self.assertEquals(self._register(""), {})
 
     def test_remaining(self):
-        self.assertEquals(self._parse("Bob +reg"), {'name': u'Bob'})
+        self.assertEquals(self._register("Bob +reg"), {'name': u'Bob'})
 
     def test_name(self):
-        self.assertEquals(self._parse("Bob"), {'name': u'Bob'})
+        self.assertEquals(self._register("Bob"), {'name': u'Bob'})
 
     def test_ident(self):
-        self.assertEquals(self._parse("#123"), {'ident': '123'})
-        self.assertEquals(self._parse("123"), {'ident': '123'})
-        self.assertEquals(self._parse("1-2-3"), {'ident': '123'})
-        self.assertEquals(self._parse("1 2 3"), {'ident': '123'})
-        self.assertEquals(self._parse("#"), None)
+        self.assertEquals(self._register("#123"), {'ident': '123'})
+        self.assertEquals(self._register("123"), {'ident': '123'})
+        self.assertEquals(self._register("1-2-3"), {'ident': '123'})
+        self.assertEquals(self._register("1 2 3"), {'ident': '123'})
+        self.assertEquals(self._register("#"), None)
 
 class HandlerTest(FormTestCase):
     @classmethod
     def _register(cls, **kwargs):
         from .forms import Register
         return cls.handle(Register, **kwargs)
+
+    @classmethod
+    def _must_register(cls, **kwargs):
+        from .forms import MustRegister
+        return cls.handle(MustRegister, **kwargs)
+
+    def test_is_registered(self):
+        from .forms import MustRegister
+        self._register(name="foo")
+        self._must_register()
+
+    def test_is_not_registered(self):
+        from .forms import MustRegister
+        from djangosms.core.router import StopError
+        self.assertRaises(StopError, self._must_register)
 
     def test_initial_registration(self):
         self._register(name="foo")
