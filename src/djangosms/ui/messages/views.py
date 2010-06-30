@@ -53,9 +53,9 @@ def index(req):
                 username = req.user.username
                 text = send_form.cleaned_data['text']
                 transport.incoming(username, text)
-                
+
                 req.notifications.add(
-                    u"Your message, '%s', was sent to the system." % text)
+                    u"Your message, \"%s\", was sent to the system." % text)
             elif 'reply' in repr(req.POST.keys()).lower():
                 messages = req.POST.getlist('messages')
                 messages = Incoming.objects.filter(pk__in=messages)
@@ -65,10 +65,9 @@ def index(req):
                         text='',message=message,route=Route.objects.get(slug='web'),
                         erroneous=False)
                     request.reply(text)
-                
+
                 req.notifications.add(
                     u"Message sent to %d recipient(s)." % len(messages))
-    
     else:
         send_form = SendForm()
 
