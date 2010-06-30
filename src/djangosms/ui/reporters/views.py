@@ -27,12 +27,12 @@ class SendForm(forms.Form):
 @login_required
 def index(req):
     columns = (
-        ("id", "#", None),
-        ("name", "Name", None),
-        ("group", "Location", None),
-        ("role", "Role", Max("roles__name")),
-        ("activity", "Last activity", Max("connections__messages__time")),
-        (None, "Message", None),
+        ("id", "#", "id", None),
+        ("name", "Name", "name", None),
+        ("group", "Location", "group__name", None),
+        ("role", "Role", "roles__name", None),
+        ("activity", "Last activity", "activity", Max("connections__messages__time")),
+        (None, "Message", None, None),
         )
 
     sort_column, sort_descending = _get_sort_info(
@@ -80,7 +80,7 @@ def index(req):
         # redirect to GET action
         return HttpResponseRedirect(req.path)
 
-    for name, title, aggregate in columns:
+    for name, title, sorting, aggregate in columns:
         if name != sort_column:
             continue
 
@@ -88,7 +88,7 @@ def index(req):
             query = query.annotate(**{name: aggregate})
 
         sort_desc_string = "-" if sort_descending else ""
-        query = query.order_by("%s%s" % (sort_desc_string, name)).all()
+        query = query.order_by("%s%s" % (sort_desc_string, sorting)).all()
 
         break
 

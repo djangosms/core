@@ -14,11 +14,9 @@ DATABASES = {
 }
 
 ROUTES = (
-    # user registration
+    # user registration; from this route and down, users must be registered
     (keyword('register|reg'), 'djangosms.apps.registration.forms.Register'),
-
-    # from this route and down, users must be registered
-    (r'^', 'djangosms.apps.common.forms.MustRegister'),
+    (r'^', 'djangosms.apps.registration.forms.MustRegister'),
 
     # unknown keyword
     (keyword(r'\w+'), 'djangosms.apps.common.forms.NotUnderstood'),
