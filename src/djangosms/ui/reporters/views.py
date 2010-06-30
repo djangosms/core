@@ -65,7 +65,7 @@ def index(req):
                 message.save()
 
             req.notifications.add(
-                u"Message sent to %d recipient(s)." % len(reporters))
+                u"Message sent to %d recipient(s)." % query.count())
 
         # redirect to GET action
         return HttpResponseRedirect(req.path)
