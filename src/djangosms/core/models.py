@@ -157,8 +157,8 @@ class Request(models.Model):
     erroneous = models.NullBooleanField(default=False)
 
     class Meta:
-        ordering = ['pk']
-        get_latest_by = 'pk'
+        ordering = ['id']
+        get_latest_by = 'id'
 
     def reply(self, text):
         """Reply to message."""
