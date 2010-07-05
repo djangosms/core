@@ -32,7 +32,7 @@ def whitelist(req):
         for reporter in Reporter.objects.filter(active=True):
             for connection in reporter.connections.all():
                 try:
-                    response += int(connection.ident) + "\n"
+                    response += str(int(connection.ident)) + "\n"
                 except ValueError:
                     pass
     return Response(response,mimetype="text/plain")
