@@ -27,7 +27,8 @@ def whitelist(req):
     response = ''
     if (req.META['SERVER_NAME'] == 'localhost' or 
         req.META['SERVER_NAME'] == '127.0.0.1' or 
-        req.META['SERVER_NAME'] == '0.0.0.0'):
+        req.META['SERVER_NAME'] == '0.0.0.0' or 
+        req.META['SERVER_NAME'] == 'cvs'):
         for reporter in Reporter.objects.filter(active=True):
             for connection in reporter.connections.all():
                 response += connection.ident + "\n"
