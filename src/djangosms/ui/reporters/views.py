@@ -31,7 +31,10 @@ def whitelist(req):
         req.META['SERVER_NAME'] == 'cvs'):
         for reporter in Reporter.objects.filter(active=True):
             for connection in reporter.connections.all():
-                response += connection.ident + "\n"
+                try:
+                    response += int(connection.ident) + "\n"
+                except ValueError:
+                    pass
     return Response(response,mimetype="text/plain")
 
 @login_required
