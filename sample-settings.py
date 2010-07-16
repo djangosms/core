@@ -1,5 +1,9 @@
 from djangosms.core.patterns import keyword
 
+# import yaml, this basically checks that it is installed, we do this so that 
+# fixtures in yaml format don't fail silently when yaml isn't installed.
+import yaml
+
 DEBUG = True
 
 ROOT_URLCONF = "djangosms.ui.urls"
