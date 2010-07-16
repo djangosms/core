@@ -3,9 +3,13 @@
 import imp
 import os
 import sys
+import traceback
 
 from django.core.management import execute_from_command_line
 from django import conf
+
+# add in src to our path
+sys.path.insert(0, os.path.join('.', 'src'))
 
 try:
     for path in ("settings.py", "sample-settings.py"):
@@ -14,9 +18,11 @@ try:
             break
     else:
         raise ImportError("settings.py")
-except ImportError:
+except ImportError, e:
+    traceback.print_exc(e)
+
     print >> sys.stderr, (
-        "Error: Can't find the file 'settings.py' in "
+        "\nError: Can't find the file 'settings.py' in "
         "the directory containing %r. It appears "
         "you've customized things.\nYou'll have to "
         "run django-admin.py, passing it your settings "

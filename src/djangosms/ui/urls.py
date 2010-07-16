@@ -6,6 +6,8 @@ from django.contrib import admin
 from django.contrib.auth.views import login
 from django.contrib.auth.views import logout
 
+import os
+
 admin.autodiscover()
 
 from .base import urls as base_urls
@@ -16,6 +18,9 @@ from .sandbox import urls as sandbox_urls
 
 urlpatterns = patterns(
     '',
+    url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
+        {'document_root': os.path.join( os.path.dirname(__file__) , 'static')}),
+
     url(r'^login$', login),
     url(r'^logout$', logout),
     url(r'^admin/', include(admin.site.urls)),
