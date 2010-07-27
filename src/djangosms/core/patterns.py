@@ -1,4 +1,5 @@
 import re
+import settings
 
 def keyword(pattern, **kwargs):
     """Return regular expresssion pattern that matches a keyword prefix.
@@ -17,13 +18,19 @@ def keyword(pattern, **kwargs):
     """
 
     name = kwargs.pop("name", "text")
-    prefix = kwargs.pop("prefix", "+")
+    prefix = kwargs.pop("prefix", settings.KEYWORD_PREFIX)
     split = kwargs.pop("split", True)
 
-    if split:
-        remaining = '^%s' % re.escape(prefix)
+    if prefix:
+        prefix_re = re.escape(prefix)
     else:
-        remaining = '.'
+        prefix_re = ''
 
-    return '^%s\s*(%s)(\s+(?P<%s>[%s]*)|$)' % (
-        re.escape(prefix), pattern, name, remaining)
+    if split and prefix:
+        remaining_re = '[^%s]' % prefix_re
+    else:
+        remaining_re = '.'
+
+    regex = '^%s\s*(%s)(\s+(?P<%s>%s*)|$)' % (prefix_re, pattern, name, remaining_re)
+
+    return regex

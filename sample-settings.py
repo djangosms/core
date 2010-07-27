@@ -17,6 +17,9 @@ DATABASES = {
     }
 }
 
+# the prefix to use for our keywords
+KEYWORD_PREFIX = '+'
+
 ROUTES = (
     # user registration; from this route and down, users must be registered
     (keyword('register|reg'), 'djangosms.apps.registration.forms.Register'),
