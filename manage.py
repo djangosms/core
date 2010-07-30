@@ -9,7 +9,7 @@ from django.core.management import execute_from_command_line
 from django import conf
 
 # add in src to our path
-sys.path.insert(0, os.path.join(os.path.realpath(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), 'src'))
 
 try:
     for path in ("settings.py", "sample-settings.py"):
